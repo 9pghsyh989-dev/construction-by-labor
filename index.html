@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Construction by Labor - Management App</title>
+  <style>
+    :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+    h1 { color: var(--primary); font-size: 1.5rem; text-align: center; margin-bottom: 20px; }
+    .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    h2 { font-size: 1.1rem; margin-top: 0; color: #334155; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+    input, select, button { width: 100%; padding: 12px; margin: 6px 0 12px 0; border-radius: 8px; border: 1px solid #cbd5e1; box-sizing: border-box; font-size: 14px; }
+    button { background: var(--primary); color: white; font-weight: bold; border: none; cursor: pointer; }
+    button:active { opacity: 0.9; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+    th { background: #f1f5f9; }
+    .badge { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>🏗️ Construction by Labor</h1>
+
+  <!-- 1. Add Labor -->
+  <div class="card">
+    <h2>👷 Naya Worker (Labor) Add Karein</h2>
+    <input type="text" id="laborName" placeholder="Worker ka Naam (e.g. Ali)" required>
+    <select id="laborRole">
+      <option value="Mason (Mistri)">Mason (Mistri)</option>
+      <option value="Helper (Mazdoor)">Helper (Mazdoor)</option>
+      <option value="Electrician">Electrician</option>
+      <option value="Plumber">Plumber</option>
+    </select>
+    <input type="number" id="dailyWage" placeholder="Daily Wage / Dihaadi (e.g. 1500)" required>
+    <button onclick="addLabor()">Worker Add Karein</button>
+  </div>
+
+  <!-- 2. Daily Attendance & Wage Calculation -->
+  <div class="card">
+    <h2>📅 Daily Attendance & Wage Summary</h2>
+    <select id="workerSelect"></select>
+    <select id="attendanceStatus">
+      <option value="Present">Present (Poori Dihaadi)</option>
+      <option value="Half-Day">Half-Day (Aadhi Dihaadi)</option>
+      <option value="Absent">Absent (Chutti)</option>
+    </select>
+    <button onclick="markAttendance()">Attendance Mark Karein</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Worker</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Wage Earned</th>
+        </tr>
+      </thead>
+      <tbody id="attendanceTable">
+        <!-- Records show here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let workers = JSON.parse(localStorage.getItem('cbl_workers')) || [];
+    let attendanceLogs = JSON.parse(localStorage.getItem('cbl_attendance')) || [];
+
+    function updateWorkerDropdown() {
+      const select = document.getElementById('workerSelect');
+      select.innerHTML = workers.length === 0 ? '<option>Pehle Worker Add Karein</option>' : '';
+      workers.forEach((w, index) => {
+        select.innerHTML += `<option value="${index}">${w.name} (${w.role} - Rs.${w.wage})</option>`;
+      });
+    }
+
+    function addLabor() {
+      const name = document.getElementById('laborName').value;
+      const role = document.getElementById('laborRole').value;
+      const wage = parseFloat(document.getElementById('dailyWage').value);
+
+      if(!name || isNaN(wage)) { alert("Baraye meherbani naam aur dihaadi darj karein!"); return; }
+
+      workers.push({ name, role, wage });
+      localStorage.setItem('cbl_workers', JSON.stringify(workers));
+      
+      document.getElementById('laborName').value = '';
+      document.getElementById('dailyWage').value = '';
+      
+      alert('Worker kamyabi se add ho gaya!');
+      updateWorkerDropdown();
+    }
+
+    function markAttendance() {
+      const workerIdx = document.getElementById('workerSelect').value;
+      const status = document.getElementById('attendanceStatus').value;
+      
+      if(workers.length === 0 || workerIdx === "") return;
+
+      const worker = workers[workerIdx];
+      let earned = 0;
+      if(status === 'Present') earned = worker.wage;
+      else if(status === 'Half-Day') earned = worker.wage / 2;
+
+      attendanceLogs.push({
+        name: worker.name,
+        role: worker.role,
+        status: status,
+        earned: earned
+      });
+
+      localStorage.setItem('cbl_attendance', JSON.stringify(attendanceLogs));
+      renderAttendance();
+    }
+
+    function renderAttendance() {
+      const tbody = document.getElementById('attendanceTable');
+      tbody.innerHTML = '';
+      attendanceLogs.forEach(log => {
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${log.name}</strong></td>
+            <td>${log.role}</td>
+            <td><span class="badge">${log.status}</span></td>
+            <td>Rs. ${log.earned}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Init
+    updateWorkerDropdown();
+    renderAttendance();
+  </script>
+</body>
+</html>
