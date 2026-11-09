@@ -67,7 +67,7 @@
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
 
     .container { padding: 24px; max-width: 1280px; margin: 0 auto; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
     .card {
       background: var(--card); padding: 22px; border-radius: var(--radius);
       box-shadow: var(--shadow); border: 1px solid var(--border);
@@ -114,15 +114,13 @@
       content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent);
     }
     .stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-    .stat-val { font-size: 24px; font-weight: 800; color: var(--text-dark); margin-top: 6px; }
+    .stat-val { font-size: 22px; font-weight: 800; color: var(--text-dark); margin-top: 6px; }
 
     .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
     .badge-paid { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
     .badge-unpaid { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 
-    .invoice-wrapper {
-      max-width: 420px; margin: 0 auto; background: white;
-    }
+    .invoice-wrapper { max-width: 420px; margin: 0 auto; background: white; }
     .invoice-box {
       border: 2px solid var(--text-dark); padding: 20px; background: white; position: relative;
       overflow: hidden; border-radius: var(--radius); box-shadow: var(--shadow); font-size: 13px;
@@ -189,7 +187,7 @@
 
     <!-- Dashboard Page -->
     <div id="dashboard" class="page active">
-      <div class="grid" style="margin-bottom: 20px;">
+      <div class="grid" style="margin-bottom: 25px;">
         <div class="stat-box">
           <div class="stat-label">Total Active Projects</div>
           <div class="stat-val" id="statProjects">0</div>
@@ -208,8 +206,27 @@
         </div>
       </div>
 
+      <!-- Quick Financial Summary Bar -->
+      <div class="card" style="margin-bottom: 25px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white;">
+        <h3 style="color: white; border-bottom-color: rgba(255,255,255,0.1);">💼 Quick Financial Overview</h3>
+        <div class="grid" style="margin-top: 15px;">
+          <div>
+            <small style="color: #94a3b8; text-transform: uppercase; font-size: 11px;">Total Cash in Hand</small>
+            <div id="dashCash" style="font-size: 18px; font-weight: bold; color: #38bdf8;">Rs. 0</div>
+          </div>
+          <div>
+            <small style="color: #94a3b8; text-transform: uppercase; font-size: 11px;">Total Bank Balance</small>
+            <div id="dashBank" style="font-size: 18px; font-weight: bold; color: #34d399;">Rs. 0</div>
+          </div>
+          <div>
+            <small style="color: #94a3b8; text-transform: uppercase; font-size: 11px;">Total Mobile Wallets (EasyPaisa/JazzCash)</small>
+            <div id="dashWallets" style="font-size: 18px; font-weight: bold; color: #fbbf24;">Rs. 0</div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
-        <h3>📍 Party & Project Ledger Summary (Day-by-Day)</h3>
+        <h3>📍 Recent Party & Project Ledger Summary (Day-by-Day)</h3>
         <div class="table-container">
           <table>
             <thead>
@@ -584,7 +601,6 @@
       refreshUI();
     }
 
-    // Set today's date by default on date inputs
     window.addEventListener('DOMContentLoaded', () => {
       const today = new Date().toISOString().split('T')[0];
       if(document.getElementById('projDate')) document.getElementById('projDate').value = today;
@@ -651,7 +667,6 @@
 
       if (!name || !loc) { alert("Project Name aur Location likhna zaroori hai!"); return; }
 
-      // Auto add budget fund to selected account
       if (budget > 0) {
         appData.accounts[acc] += budget;
         appData.ledger.push({
@@ -723,7 +738,6 @@
         return;
       }
 
-      // Auto deduct from selected account
       appData.accounts[mode] -= total;
       appData.materials.push({
         date: dateVal,
@@ -947,6 +961,11 @@
       document.getElementById('valEasy').innerText = 'Rs. ' + appData.accounts.EasyPaisa.toLocaleString();
       document.getElementById('valJazz').innerText = 'Rs. ' + appData.accounts.JazzCash.toLocaleString();
       
+      // Dashboard Quick Overview
+      document.getElementById('dashCash').innerText = 'Rs. ' + appData.accounts.Cash.toLocaleString();
+      document.getElementById('dashBank').innerText = 'Rs. ' + appData.accounts.Bank.toLocaleString();
+      document.getElementById('dashWallets').innerText = 'Rs. ' + (appData.accounts.EasyPaisa + appData.accounts.JazzCash).toLocaleString();
+
       const totalBalance = Object.values(appData.accounts).reduce((a,b)=>a+b, 0);
       document.getElementById('statBalance').innerText = 'Rs. ' + totalBalance.toLocaleString();
 
