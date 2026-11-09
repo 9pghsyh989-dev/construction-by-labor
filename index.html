@@ -119,16 +119,30 @@
     .badge-paid { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
     .badge-unpaid { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 
+    /* Phone Optimized Invoice Box */
+    .invoice-wrapper {
+      max-width: 420px; margin: 0 auto; background: white;
+    }
     .invoice-box {
-      border: 2px solid var(--text-dark); padding: 30px; background: white; position: relative;
-      overflow: hidden; border-radius: var(--radius); box-shadow: var(--shadow);
+      border: 2px solid var(--text-dark); padding: 20px; background: white; position: relative;
+      overflow: hidden; border-radius: var(--radius); box-shadow: var(--shadow); font-size: 13px;
     }
     .watermark {
-      position: absolute; top: 35%; left: 15%; transform: rotate(-25deg); font-size: 55px;
-      font-weight: 900; opacity: 0.12; border: 6px solid; padding: 10px 25px; text-transform: uppercase; letter-spacing: 2px;
+      position: absolute; top: 38%; left: 10%; transform: rotate(-25deg); font-size: 45px;
+      font-weight: 900; opacity: 0.12; border: 5px solid; padding: 8px 20px; text-transform: uppercase; letter-spacing: 2px;
     }
     .watermark.paid { color: var(--success); border-color: var(--success); }
     .watermark.unpaid { color: var(--danger); border-color: var(--danger); }
+
+    /* Numerical Calculator Styles */
+    .calc-container { max-width: 320px; margin: 0 auto; background: #1e293b; padding: 15px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+    #calcScreen { width: 100%; height: 50px; background: #0f172a; color: #38bdf8; font-size: 22px; text-align: right; padding: 10px; border-radius: 6px; margin-bottom: 12px; border: 1px solid #334155; font-family: monospace; }
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .calc-btn { padding: 14px; font-size: 16px; font-weight: bold; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .calc-btn:hover { background: #475569; }
+    .calc-btn.op { background: var(--accent); }
+    .calc-btn.eq { background: var(--success); grid-column: span 2; }
+    .calc-btn.clr { background: var(--danger); }
   </style>
 </head>
 <body>
@@ -155,13 +169,13 @@
     </div>
   </header>
 
-  <!-- Clean Navigation Tabs -->
+  <!-- Navigation Tabs -->
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
     <button class="tab-btn" onclick="switchTab('projects')">Projects</button>
     <button class="tab-btn" onclick="switchTab('payments')">Banks & Wallets</button>
     <button class="tab-btn" onclick="switchTab('materials')">Materials & Suppliers</button>
-    <button class="tab-btn" onclick="switchTab('calculator')">Material Calculator</button>
+    <button class="tab-btn" onclick="switchTab('calculator')">Calculator</button>
     <button class="tab-btn" onclick="switchTab('labor')">Labor Wages</button>
     <button class="tab-btn" onclick="switchTab('invoices')">Invoices & Bills</button>
     <button class="tab-btn" onclick="switchTab('reports')">Monthly Reports</button>
@@ -337,23 +351,35 @@
       </div>
     </div>
 
-    <!-- Material Estimation Calculator -->
+    <!-- Numerical Calculator -->
     <div id="calculator" class="page">
-      <div class="card">
-        <h3>🧮 Construction Material Estimator</h3>
-        <p style="font-size: 13px; color: #64748b;">Plot ya Slab ka covered area (Square Feet) darj karein taake zaroori material ki quantity estimate ho sake.</p>
-        
-        <label>Total Covered Area (Square Feet)</label>
-        <input type="number" id="calcArea" placeholder="e.g. 1200 (120 Sq Yards)">
-        <button class="btn-warning" style="width: 100%; margin-top: 10px;" onclick="calculateMaterials()">⚡ Calculate Required Quantities</button>
-
-        <div id="calcResult" style="margin-top: 20px; display: none;">
-          <h4>Estimated Material Required:</h4>
-          <div class="grid">
-            <div class="stat-box">🧱 Bricks (Eent): <br><strong id="resBricks" class="stat-val">0</strong></div>
-            <div class="stat-box">📦 Cement Bags: <br><strong id="resCement" class="stat-val">0</strong></div>
-            <div class="stat-box">🏗️ Steel (Saria): <br><strong id="resSteel" class="stat-val">0 Tons</strong></div>
-            <div class="stat-box">🏜️ Sand (Reti): <br><strong id="resSand" class="stat-val">0 Sqft</strong></div>
+      <div class="card" style="max-width: 380px; margin: 0 auto;">
+        <h3>🔢 Numerical Calculator</h3>
+        <div class="calc-container">
+          <div id="calcScreen">0</div>
+          <div class="calc-grid">
+            <button class="calc-btn clr" onclick="clearCalc()">C</button>
+            <button class="calc-btn op" onclick="appendCalc('/')">/</button>
+            <button class="calc-btn op" onclick="appendCalc('*')">×</button>
+            <button class="calc-btn op" onclick="appendCalc('-')">-</button>
+            
+            <button class="calc-btn" onclick="appendCalc('7')">7</button>
+            <button class="calc-btn" onclick="appendCalc('8')">8</button>
+            <button class="calc-btn" onclick="appendCalc('9')">9</button>
+            <button class="calc-btn op" onclick="appendCalc('+')">+</button>
+            
+            <button class="calc-btn" onclick="appendCalc('4')">4</button>
+            <button class="calc-btn" onclick="appendCalc('5')">5</button>
+            <button class="calc-btn" onclick="appendCalc('6')">6</button>
+            <button class="calc-btn" onclick="backspaceCalc()">⌫</button>
+            
+            <button class="calc-btn" onclick="appendCalc('1')">1</button>
+            <button class="calc-btn" onclick="appendCalc('2')">2</button>
+            <button class="calc-btn" onclick="appendCalc('3')">3</button>
+            <button class="calc-btn eq" onclick="calculateResult()">=</button>
+            
+            <button class="calc-btn" onclick="appendCalc('0')" style="grid-column: span 2;">0</button>
+            <button class="calc-btn" onclick="appendCalc('.')">.</button>
           </div>
         </div>
       </div>
@@ -402,7 +428,7 @@
       </div>
     </div>
 
-    <!-- Invoices & Bills Section -->
+    <!-- Invoices & Bills Section (Phone Size Optimized) -->
     <div id="invoices" class="page">
       <div class="grid">
         <div class="card">
@@ -424,25 +450,25 @@
         </div>
 
         <div class="card">
-          <h3>📄 Invoice Preview & Export / WhatsApp</h3>
-          <div id="invoicePrintArea" style="margin-top: 10px;">
+          <h3>📄 Invoice Preview (Phone Size) & Share</h3>
+          <div id="invoicePrintArea" class="invoice-wrapper" style="margin-top: 10px;">
             <div class="invoice-box" id="invBox">
               <div class="watermark" id="invWatermark">UNPAID</div>
-              <div style="display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 10px;">
                 <div>
-                  <h3 style="margin: 0; color: var(--accent);">M.A. HAQUE BUILDING CONSTRUCTION</h3>
-                  <small style="color: #64748b;">📞 Phone: 03343260648</small>
+                  <h4 style="margin: 0; color: var(--accent); font-size: 14px;">M.A. HAQUE BUILDING CONSTRUCTION</h4>
+                  <small style="color: #64748b; font-size: 11px;">📞 Phone: 03343260648</small>
                 </div>
                 <div style="text-align: right;">
-                  <strong style="font-size: 15px;">BILL / INVOICE</strong><br>
-                  <small id="invDate" style="color: #64748b;">Date: --/--/----</small>
+                  <strong style="font-size: 13px;">INVOICE</strong><br>
+                  <small id="invDate" style="color: #64748b; font-size: 10px;">Date: --/--/----</small>
                 </div>
               </div>
-              <div style="margin: 15px 0; font-size: 13px;">
+              <div style="margin: 12px 0; font-size: 12px;">
                 <strong>Bill To:</strong> <span id="invOutParty">----------------</span><br>
                 <strong>Project:</strong> <span id="invOutProj">----------------</span>
               </div>
-              <table style="margin-top: 10px;">
+              <table style="margin-top: 8px; font-size: 12px;">
                 <thead>
                   <tr>
                     <th>Description</th>
@@ -457,17 +483,16 @@
                 </tbody>
               </table>
               
-              <!-- Signature & Stamp Section (Updated with New Image Vector) -->
-              <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
-                <div style="font-size: 11px; color: #64748b;">
-                  Authorized & Verified by <strong>M.A. HAQUE BUILDING CONSTRUCTION</strong>
+              <!-- Signature & Stamp Section -->
+              <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div style="font-size: 10px; color: #64748b; max-width: 50%;">
+                  Verified by <strong>M.A. HAQUE BUILDING CONSTRUCTION</strong>
                 </div>
                 <div style="text-align: center;">
-                  <!-- New Exact Signature Vector (M. Haque) -->
-                  <svg width="130" height="60" viewBox="0 0 200 100" style="display: block; margin-bottom: 2px;">
+                  <svg width="110" height="50" viewBox="0 0 200 100" style="display: block; margin-bottom: 2px;">
                     <path d="M 25,25 L 35,55 L 45,30 L 55,50 C 65,42 90,38 120,28 C 145,20 170,30 160,40 C 140,55 90,65 15,90 M 80,72 L 125,70 M 98,62 L 98,78" stroke="#4338ca" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <div style="border-top: 1px solid #000; font-size: 11px; font-weight: bold; padding-top: 2px; width: 130px;">Signature</div>
+                  <div style="border-top: 1px solid #000; font-size: 10px; font-weight: bold; padding-top: 2px; width: 110px;">Signature</div>
                 </div>
               </div>
 
@@ -509,7 +534,7 @@
   </div>
 
   <script>
-    let appData = JSON.parse(localStorage.getItem('MA_HAQUE_CONSTRUCTION_V2')) || {
+    let appData = JSON.parse(localStorage.getItem('MA_HAQUE_CONSTRUCTION_V3')) || {
       projects: [],
       accounts: { Cash: 0, Bank: 0, EasyPaisa: 0, JazzCash: 0 },
       materials: [],
@@ -520,7 +545,7 @@
     };
 
     function saveData() {
-      localStorage.setItem('MA_HAQUE_CONSTRUCTION_V2', JSON.stringify(appData));
+      localStorage.setItem('MA_HAQUE_CONSTRUCTION_V3', JSON.stringify(appData));
       refreshUI();
     }
 
@@ -543,8 +568,34 @@
 
     function restartApplication() {
       if (confirm("🚨 Kya aap poori application ko RESTART aur TAMAM DATA DELETE karna chahte hain?")) {
-        localStorage.removeItem('MA_HAQUE_CONSTRUCTION_V2');
+        localStorage.removeItem('MA_HAQUE_CONSTRUCTION_V3');
         location.reload();
+      }
+    }
+
+    // Numerical Calculator Script
+    let calcExpression = "";
+    function appendCalc(val) {
+      if(calcExpression === "0" && val !== ".") calcExpression = "";
+      calcExpression += val;
+      document.getElementById('calcScreen').innerText = calcExpression;
+    }
+    function clearCalc() {
+      calcExpression = "";
+      document.getElementById('calcScreen').innerText = "0";
+    }
+    function backspaceCalc() {
+      calcExpression = calcExpression.slice(0, -1);
+      document.getElementById('calcScreen').innerText = calcExpression || "0";
+    }
+    function calculateResult() {
+      try {
+        let res = eval(calcExpression);
+        document.getElementById('calcScreen').innerText = res;
+        calcExpression = res.toString();
+      } catch (e) {
+        document.getElementById('calcScreen').innerText = "Error";
+        calcExpression = "";
       }
     }
 
@@ -629,19 +680,6 @@
 
       saveData();
       alert("Material Purchase Saved Successfully!");
-    }
-
-    // Calculator Logic
-    function calculateMaterials() {
-      const area = parseFloat(document.getElementById('calcArea').value) || 0;
-      if (area <= 0) return;
-
-      document.getElementById('resBricks').innerText = Math.round(area * 42) + " Nos";
-      document.getElementById('resCement').innerText = Math.round(area * 0.4) + " Bags";
-      document.getElementById('resSteel').innerText = (area * 0.0025).toFixed(2) + " Tons";
-      document.getElementById('resSand').innerText = Math.round(area * 1.8) + " Sqft";
-
-      document.getElementById('calcResult').style.display = 'block';
     }
 
     function saveLaborRecord() {
@@ -758,7 +796,14 @@
 
     function downloadInvoicePDF() {
       const element = document.getElementById('invBox');
-      html2pdf().from(element).save('M.A._Haque_Invoice.pdf');
+      const opt = {
+        margin: 5,
+        filename: 'M.A._Haque_Invoice.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
     }
 
     function shareWhatsApp() {
