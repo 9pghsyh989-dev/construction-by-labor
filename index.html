@@ -27,7 +27,6 @@
     * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); line-height: 1.5; }
     
-    /* Smooth Animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
@@ -36,7 +35,6 @@
     .page { display: none; animation: fadeIn 0.3s ease-in-out forwards; }
     .page.active { display: block; }
 
-    /* Login Screen Overlay */
     #loginOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
@@ -49,7 +47,6 @@
     }
     .login-card h2 { margin-top: 0; color: var(--text-dark); font-size: 1.5rem; }
 
-    /* Header & Navigation */
     header {
       background: var(--primary); color: white; padding: 18px 24px; display: flex;
       justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
@@ -68,7 +65,6 @@
     .tab-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
 
-    /* Layout Structure */
     .container { padding: 24px; max-width: 1280px; margin: 0 auto; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
     .card {
@@ -79,7 +75,6 @@
     .card:hover { box-shadow: 0 10px 20px -3px rgba(15, 23, 42, 0.08); }
     .card h3 { margin-top: 0; font-size: 1.15rem; color: var(--text-dark); border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
 
-    /* Form Controls */
     label { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 12px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
     input, select, textarea {
       width: 100%; padding: 11px 14px; margin: 6px 0 14px 0; border: 1px solid var(--border);
@@ -104,14 +99,12 @@
     .btn-warning { background: var(--warning); color: white; }
     .btn-warning:hover { background: #b45309; }
 
-    /* Tables */
     .table-container { overflow-x: auto; margin-top: 12px; border-radius: 8px; border: 1px solid var(--border); }
     table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; background: white; }
     th, td { border-bottom: 1px solid var(--border); padding: 12px 14px; }
     th { background: #f8fafc; font-weight: 700; color: var(--text-dark); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
     tr:hover { background: #f8fafc; }
 
-    /* Stat Cards */
     .stat-box {
       text-align: center; padding: 20px; border-radius: var(--radius); background: white;
       border: 1px solid var(--border); box-shadow: var(--shadow); position: relative; overflow: hidden;
@@ -122,12 +115,10 @@
     .stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
     .stat-val { font-size: 24px; font-weight: 800; color: var(--text-dark); margin-top: 6px; }
 
-    /* Badges */
     .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
     .badge-paid { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
     .badge-unpaid { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 
-    /* Invoice Layout & Watermark */
     .invoice-box {
       border: 2px solid var(--text-dark); padding: 30px; background: white; position: relative;
       overflow: hidden; border-radius: var(--radius); box-shadow: var(--shadow);
@@ -142,7 +133,7 @@
 </head>
 <body>
 
-  <!-- 7. Login Page -->
+  <!-- Login Page -->
   <div id="loginOverlay">
     <div class="login-card">
       <h2 style="color: var(--accent);">🏗️ Construction ERP</h2>
@@ -160,24 +151,24 @@
       <small id="currentProjectDisplay" style="color: #94a3b8;">Enterprise System Active</small>
     </div>
     <div>
-      <button class="btn-danger" style="font-size: 12px; padding: 8px 12px;" onclick="restartApplication()">⚠️ 8. Full App Restart</button>
+      <button class="btn-danger" style="font-size: 12px; padding: 8px 12px;" onclick="restartApplication()">⚠️ Full App Restart</button>
     </div>
   </header>
 
-  <!-- Navigation Tabs -->
+  <!-- Navigation Tabs (Numbers Removed) -->
   <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('dashboard')">3. Dashboard</button>
-    <button class="tab-btn" onclick="switchTab('projects')">1, 9, 11, 12. Projects</button>
-    <button class="tab-btn" onclick="switchTab('payments')">2. Banks & Wallets</button>
-    <button class="tab-btn" onclick="switchTab('materials')">13, 14, 18, 19. Materials & Suppliers</button>
-    <button class="tab-btn" onclick="switchTab('labor')">16. Labor Wages</button>
-    <button class="tab-btn" onclick="switchTab('invoices')">4, 5, 6, 17. Invoices & Bills</button>
-    <button class="tab-btn" onclick="switchTab('reports')">10. Monthly Reports</button>
+    <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('projects')">Projects</button>
+    <button class="tab-btn" onclick="switchTab('payments')">Banks & Wallets</button>
+    <button class="tab-btn" onclick="switchTab('materials')">Materials & Suppliers</button>
+    <button class="tab-btn" onclick="switchTab('labor')">Labor Wages</button>
+    <button class="tab-btn" onclick="switchTab('invoices')">Invoices & Bills</button>
+    <button class="tab-btn" onclick="switchTab('reports')">Monthly Reports</button>
   </div>
 
   <div class="container">
 
-    <!-- 3. Dashboard -->
+    <!-- Dashboard -->
     <div id="dashboard" class="page active">
       <div class="grid" style="margin-bottom: 20px;">
         <div class="stat-box">
@@ -218,18 +209,18 @@
       </div>
     </div>
 
-    <!-- 1, 9, 11, 12. Projects Section -->
+    <!-- Projects Section -->
     <div id="projects" class="page">
       <div class="grid">
         <div class="card">
           <h3>➕ Create New Project</h3>
           <label>Project Name</label>
           <input type="text" id="projName" placeholder="e.g. Commercial Plaza Block A">
-          <label>11. Project Location Name</label>
+          <label>Project Location Name</label>
           <input type="text" id="projLoc" placeholder="e.g. Autobahn Road, Hyderabad">
-          <label>9. Total Project Budget (Rs.)</label>
+          <label>Total Project Budget (Rs.)</label>
           <input type="number" id="projBudget" placeholder="e.g. 5000000">
-          <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="addProject()">12. Add Project</button>
+          <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="addProject()">Add Project</button>
         </div>
 
         <div class="card">
@@ -252,7 +243,7 @@
       </div>
     </div>
 
-    <!-- 2. Banks & Wallets -->
+    <!-- Banks & Wallets -->
     <div id="payments" class="page">
       <div class="card">
         <h3>💳 Financial Accounts & Wallets Management</h3>
@@ -283,26 +274,34 @@
       </div>
     </div>
 
-    <!-- 13, 14, 18, 19. Materials & Suppliers -->
+    <!-- Materials & Suppliers (With Custom Item Add & Tiles) -->
     <div id="materials" class="page">
       <div class="grid">
         <div class="card">
-          <h3>🧱 13, 14. Record Material Purchase</h3>
+          <h3>🧱 Record Material Purchase</h3>
           <label>Project</label>
           <select id="matProjSelect"></select>
-          <label>14. Supplier / Shop Name</label>
+          <label>Supplier / Shop Name</label>
           <input type="text" id="supName" placeholder="e.g. Bismillah Hardware Store">
-          <label>18, 19. Construction Material Item</label>
-          <select id="matItemSelect">
-            <option value="Cement (Bags)">Cement (Bags)</option>
-            <option value="Bricks (Count)">Bricks / Eent (Count)</option>
-            <option value="Steel / Saria (Tons)">Steel / Saria (Tons)</option>
-            <option value="Sand / Reti (Sqft)">Sand / Reti (Sqft)</option>
-            <option value="Crush / Bajri (Sqft)">Crush / Bajri (Sqft)</option>
-          </select>
-          <label>Quantity</label>
+          
+          <label>Construction Material Item</label>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <select id="matItemSelect" style="margin-bottom:0; flex: 1;">
+              <option value="Cement (Bags)">Cement (Bags)</option>
+              <option value="Bricks (Count)">Bricks / Eent (Count)</option>
+              <option value="Steel / Saria (Tons)">Steel / Saria (Tons)</option>
+              <option value="Sand / Reti (Sqft)">Sand / Reti (Sqft)</option>
+              <option value="Crush / Bajri (Sqft)">Crush / Bajri (Sqft)</option>
+              <option value="Tiles (Boxes / Sqft)">Tiles (Boxes / Sqft)</option>
+              <option value="Marble (Sqft)">Marble (Sqft)</option>
+              <option value="Paint (Buckets)">Paint (Buckets)</option>
+            </select>
+            <button class="btn-success" style="padding: 10px 14px; white-space: nowrap;" onclick="addNewMaterialItem()">+ Add Item</button>
+          </div>
+
+          <label style="margin-top: 14px;">Quantity</label>
           <input type="number" id="matQty" placeholder="e.g. 100" oninput="calcMatTotal()">
-          <label>19. Purchase Price Per Unit (Rs.)</label>
+          <label>Purchase Price Per Unit (Rs.)</label>
           <input type="number" id="matPrice" placeholder="e.g. 1450" oninput="calcMatTotal()">
           <label>Total Bill Amount (Rs.)</label>
           <input type="number" id="matTotal" readonly style="background: #f1f5f9;">
@@ -337,27 +336,31 @@
       </div>
     </div>
 
-    <!-- 16. Labor Payment Paid / Unpaid Summary -->
+    <!-- Labor Wages (With Edit & Payment Dates) -->
     <div id="labor" class="page">
       <div class="grid">
         <div class="card">
-          <h3>👷 Add Labor Shift & Wage</h3>
+          <h3 id="laborFormTitle">👷 Add Labor Shift & Wage</h3>
+          <input type="hidden" id="editLaborId" value="">
           <label>Project</label>
           <select id="laborProjSelect"></select>
           <label>Labor Worker Name</label>
           <input type="text" id="workerName" placeholder="e.g. Ghulam Rasool">
           <label>Daily Wage Rate (Rs.)</label>
           <input type="number" id="workerWage" placeholder="e.g. 1800">
-          <label>16. Payment Status</label>
+          <label>Payment Status</label>
           <select id="workerPayStatus">
             <option value="Paid">Paid (Ada Kar Diya)</option>
             <option value="Unpaid">Unpaid (Baqaya / Pending)</option>
           </select>
-          <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="addLaborRecord()">Add Wage Record</button>
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button class="btn-primary" style="flex: 1;" onclick="saveLaborRecord()" id="laborSubmitBtn">Add Wage Record</button>
+            <button class="btn-warning" style="display: none;" id="cancelLaborEditBtn" onclick="resetLaborForm()">Cancel</button>
+          </div>
         </div>
 
         <div class="card">
-          <h3>📑 16. Labor Payment Paid / Unpaid Summary</h3>
+          <h3>📑 Labor Payment Paid / Unpaid Summary</h3>
           <div class="table-container">
             <table>
               <thead>
@@ -365,7 +368,7 @@
                   <th>Worker</th>
                   <th>Project</th>
                   <th>Wage</th>
-                  <th>Status</th>
+                  <th>Status & Date</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -376,11 +379,11 @@
       </div>
     </div>
 
-    <!-- 4, 5, 6, 17. Bill & Invoices Section -->
+    <!-- Invoices & Bills Section -->
     <div id="invoices" class="page">
       <div class="grid">
         <div class="card">
-          <h3>📝 5. Generate Automatic Invoice</h3>
+          <h3>📝 Generate Automatic Invoice</h3>
           <label>Project</label>
           <select id="invProjSelect"></select>
           <label>Client / Party Name</label>
@@ -389,7 +392,7 @@
           <input type="text" id="invDesc" placeholder="e.g. Gray Structure Phase 1 Billing">
           <label>Total Bill Amount (Rs.)</label>
           <input type="number" id="invAmount" placeholder="150000">
-          <label>17. Invoice Payment Status</label>
+          <label>Invoice Payment Status</label>
           <select id="invStatus">
             <option value="PAID">PAID</option>
             <option value="UNPAID">UNPAID</option>
@@ -398,7 +401,7 @@
         </div>
 
         <div class="card">
-          <h3>📄 Invoice Preview & 6. Export / WhatsApp</h3>
+          <h3>📄 Invoice Preview & Export / WhatsApp</h3>
           <div id="invoicePrintArea" style="margin-top: 10px;">
             <div class="invoice-box" id="invBox">
               <div class="watermark" id="invWatermark">UNPAID</div>
@@ -431,7 +434,7 @@
                 </tbody>
               </table>
               <div style="margin-top: 25px; border-top: 1px solid var(--border); padding-top: 10px; font-size: 11px; text-align: center; color: #64748b;">
-                17. Official Verified Stamp by <strong>Construction by Labor Enterprise System</strong>
+                Official Verified Stamp by <strong>Construction by Labor Enterprise System</strong>
               </div>
             </div>
           </div>
@@ -443,10 +446,10 @@
       </div>
     </div>
 
-    <!-- 10. Monthly Reports All Projects -->
+    <!-- Monthly Reports All Projects -->
     <div id="reports" class="page">
       <div class="card">
-        <h3>📈 10. Monthly Reports (All Projects Audit)</h3>
+        <h3>📈 Monthly Reports (All Projects Audit)</h3>
         <p style="font-size: 13px; color: #64748b;">Complete multi-project financial audit summary and budget allocation tracking.</p>
         <button class="btn-primary" style="margin: 10px 0;" onclick="generateMonthlyReport()">🔄 Refresh & Generate Report</button>
         
@@ -471,22 +474,21 @@
   </div>
 
   <script>
-    // State & Storage Initialization
-    let appData = JSON.parse(localStorage.getItem('CBL_ENTERPRISE_DATA')) || {
+    let appData = JSON.parse(localStorage.getItem('CBL_ENTERPRISE_DATA_V2')) || {
       projects: [],
       accounts: { Cash: 0, Bank: 0, EasyPaisa: 0, JazzCash: 0 },
       materials: [],
       labor: [],
       invoices: [],
-      ledger: []
+      ledger: [],
+      customMaterials: []
     };
 
     function saveData() {
-      localStorage.setItem('CBL_ENTERPRISE_DATA', JSON.stringify(appData));
+      localStorage.setItem('CBL_ENTERPRISE_DATA_V2', JSON.stringify(appData));
       refreshUI();
     }
 
-    // 7. Login Logic
     function handleLogin() {
       const u = document.getElementById('loginUser').value;
       const p = document.getElementById('loginPass').value;
@@ -497,7 +499,6 @@
       }
     }
 
-    // Tab Switcher with animations
     function switchTab(tabId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -505,15 +506,13 @@
       event.target.classList.add('active');
     }
 
-    // 8. Full Restart Application Button
     function restartApplication() {
       if (confirm("🚨 Kya aap poori application ko RESTART aur TAMAM DATA DELETE karna chahte hain?")) {
-        localStorage.removeItem('CBL_ENTERPRISE_DATA');
+        localStorage.removeItem('CBL_ENTERPRISE_DATA_V2');
         location.reload();
       }
     }
 
-    // 1, 9, 11, 12. Add Project
     function addProject() {
       const name = document.getElementById('projName').value;
       const loc = document.getElementById('projLoc').value;
@@ -529,7 +528,6 @@
       alert("Project Successfully Created!");
     }
 
-    // 2. Deposit Funds
     function addFunds() {
       const acc = document.getElementById('accSelect').value;
       const amt = parseFloat(document.getElementById('accAmount').value) || 0;
@@ -547,7 +545,17 @@
       saveData();
     }
 
-    // 13, 14, 18, 19. Material Purchase
+    // Custom Material Add Button Feature
+    function addNewMaterialItem() {
+      const newItem = prompt("Naye construction material ka naam likhein (e.g. Electric Cables, PVC Pipes):");
+      if (newItem && newItem.trim() !== "") {
+        if (!appData.customMaterials) appData.customMaterials = [];
+        appData.customMaterials.push(newItem.trim());
+        saveData();
+        alert("Material successfully list mein add ho gaya!");
+      }
+    }
+
     function calcMatTotal() {
       const qty = parseFloat(document.getElementById('matQty').value) || 0;
       const price = parseFloat(document.getElementById('matPrice').value) || 0;
@@ -589,27 +597,52 @@
       alert("Material Purchase Saved Successfully!");
     }
 
-    // 16. Labor Wage Record
-    function addLaborRecord() {
+    // Labor Wage Record with Edit & Payment Dates
+    function saveLaborRecord() {
+      const editId = document.getElementById('editLaborId').value;
       const projId = document.getElementById('laborProjSelect').value;
       const name = document.getElementById('workerName').value;
       const wage = parseFloat(document.getElementById('workerWage').value) || 0;
       const status = document.getElementById('workerPayStatus').value;
+      const currentDate = new Date().toLocaleDateString();
 
-      if (!name || wage <= 0) return;
+      if (!name || wage <= 0) { alert("Worker ka naam aur wage likhna zaroori hai!"); return; }
 
-      appData.labor.push({ id: Date.now(), projId, name, wage, status });
-      
-      if (status === 'Paid') {
-        appData.accounts.Cash -= wage;
-        appData.ledger.push({
-          date: new Date().toLocaleDateString(),
-          project: getProjName(projId),
-          party: 'Labor: ' + name,
-          type: 'DEBIT (Labor Wage)',
-          mode: 'Cash',
-          amount: wage
+      if (editId) {
+        // Edit existing
+        const l = appData.labor.find(x => x.id == editId);
+        if (l) {
+          l.projId = projId;
+          l.name = name;
+          l.wage = wage;
+          if (l.status !== status) {
+            l.status = status;
+            l.date = currentDate; // update date if status changed
+          }
+        }
+        resetLaborForm();
+      } else {
+        // Add new
+        appData.labor.push({ 
+          id: Date.now(), 
+          projId, 
+          name, 
+          wage, 
+          status, 
+          date: currentDate 
         });
+        
+        if (status === 'Paid') {
+          appData.accounts.Cash -= wage;
+          appData.ledger.push({
+            date: currentDate,
+            project: getProjName(projId),
+            party: 'Labor: ' + name,
+            type: 'DEBIT (Labor Wage)',
+            mode: 'Cash',
+            amount: wage
+          });
+        }
       }
 
       saveData();
@@ -617,13 +650,38 @@
       document.getElementById('workerWage').value = '';
     }
 
+    function editLabor(id) {
+      const l = appData.labor.find(x => x.id == id);
+      if (l) {
+        document.getElementById('editLaborId').value = l.id;
+        document.getElementById('laborProjSelect').value = l.projId;
+        document.getElementById('workerName').value = l.name;
+        document.getElementById('workerWage').value = l.wage;
+        document.getElementById('workerPayStatus').value = l.status;
+        
+        document.getElementById('laborFormTitle').innerText = '✏️ Edit Labor Record';
+        document.getElementById('laborSubmitBtn').innerText = 'Update Record';
+        document.getElementById('cancelLaborEditBtn').style.display = 'inline-flex';
+      }
+    }
+
+    function resetLaborForm() {
+      document.getElementById('editLaborId').value = '';
+      document.getElementById('workerName').value = '';
+      document.getElementById('workerWage').value = '';
+      document.getElementById('laborFormTitle').innerText = '👷 Add Labor Shift & Wage';
+      document.getElementById('laborSubmitBtn').innerText = 'Add Wage Record';
+      document.getElementById('cancelLaborEditBtn').style.display = 'none';
+    }
+
     function toggleLaborPay(laborId) {
       const l = appData.labor.find(x => x.id === laborId);
       if (l && l.status === 'Unpaid') {
         l.status = 'Paid';
+        l.date = new Date().toLocaleDateString();
         appData.accounts.Cash -= l.wage;
         appData.ledger.push({
-          date: new Date().toLocaleDateString(),
+          date: l.date,
           project: getProjName(l.projId),
           party: 'Labor: ' + l.name,
           type: 'DEBIT (Labor Wage)',
@@ -634,7 +692,6 @@
       }
     }
 
-    // 4, 5, 6, 17. Invoice Generation
     function generateInvoice() {
       const projId = document.getElementById('invProjSelect').value;
       const party = document.getElementById('invParty').value;
@@ -672,7 +729,6 @@
       return p ? p.name : 'N/A';
     }
 
-    // 10. Monthly Report Generator
     function generateMonthlyReport() {
       const tbody = document.getElementById('monthlyReportTable');
       tbody.innerHTML = '';
@@ -694,7 +750,6 @@
       });
     }
 
-    // Core UI Refresh Loop
     function refreshUI() {
       document.getElementById('valCash').innerText = 'Rs. ' + appData.accounts.Cash.toLocaleString();
       document.getElementById('valBank').innerText = 'Rs. ' + appData.accounts.Bank.toLocaleString();
@@ -717,6 +772,25 @@
         const el = document.getElementById(id);
         el.innerHTML = appData.projects.length > 0 ? appData.projects.map(p => `<option value="${p.id}">${p.name} (${p.loc})</option>`).join('') : '<option>Pehle Project Add Karein</option>';
       });
+
+      // Render Material Dropdown with Custom Items
+      const matSelect = document.getElementById('matItemSelect');
+      let defaultMatOptions = `
+        <option value="Cement (Bags)">Cement (Bags)</option>
+        <option value="Bricks (Count)">Bricks / Eent (Count)</option>
+        <option value="Steel / Saria (Tons)">Steel / Saria (Tons)</option>
+        <option value="Sand / Reti (Sqft)">Sand / Reti (Sqft)</option>
+        <option value="Crush / Bajri (Sqft)">Crush / Bajri (Sqft)</option>
+        <option value="Tiles (Boxes / Sqft)">Tiles (Boxes / Sqft)</option>
+        <option value="Marble (Sqft)">Marble (Sqft)</option>
+        <option value="Paint (Buckets)">Paint (Buckets)</option>
+      `;
+      if (appData.customMaterials) {
+        appData.customMaterials.forEach(cm => {
+          defaultMatOptions += `<option value="${cm}">${cm}</option>`;
+        });
+      }
+      matSelect.innerHTML = defaultMatOptions;
 
       const projTbody = document.getElementById('projectsTable');
       projTbody.innerHTML = appData.projects.map(p => `
@@ -741,14 +815,23 @@
         </tr>
       `).join('');
 
+      // Labor Table with Edit & Payment Date
       const labTbody = document.getElementById('laborTable');
       labTbody.innerHTML = appData.labor.map(l => `
         <tr>
           <td><strong>${l.name}</strong></td>
           <td>${getProjName(l.projId)}</td>
           <td>Rs. ${l.wage.toLocaleString()}</td>
-          <td><span class="badge ${l.status === 'Paid' ? 'badge-paid' : 'badge-unpaid'}">${l.status}</span></td>
-          <td>${l.status === 'Unpaid' ? `<button class="btn-success" style="padding: 4px 8px; font-size:11px;" onclick="toggleLaborPay(${l.id})">Mark Paid</button>` : 'Paid'}</td>
+          <td>
+            <span class="badge ${l.status === 'Paid' ? 'badge-paid' : 'badge-unpaid'}">${l.status}</span><br>
+            <small style="font-size: 10px; color: #64748b;">📅 ${l.date || 'N/A'}</small>
+          </td>
+          <td>
+            <div style="display: flex; gap: 4px;">
+              <button class="btn-primary" style="padding: 3px 6px; font-size:10px;" onclick="editLabor(${l.id})">Edit</button>
+              ${l.status === 'Unpaid' ? `<button class="btn-success" style="padding: 3px 6px; font-size:10px;" onclick="toggleLaborPay(${l.id})">Pay</button>` : ''}
+            </div>
+          </td>
         </tr>
       `).join('');
 
