@@ -3,92 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Construction by Labor - Ultimate ERP</title>
+  <title>Construction by Labor - Enterprise ERP</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
-      --primary: #1e293b;
+      --primary: #0f172a;
+      --primary-light: #1e293b;
       --accent: #2563eb;
-      --success: #16a34a;
+      --accent-hover: #1d4ed8;
+      --success: #059669;
       --danger: #dc2626;
       --warning: #d97706;
-      --bg: #f1f5f9;
+      --bg: #f8fafc;
       --card: #ffffff;
-      --text: #0f172a;
+      --text: #334155;
+      --text-dark: #0f172a;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); }
+    * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); line-height: 1.5; }
     
-    /* Login Overlay */
+    /* Smooth Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .page { display: none; animation: fadeIn 0.3s ease-in-out forwards; }
+    .page.active { display: block; }
+
+    /* Login Screen Overlay */
     #loginOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center;
-      z-index: 9999;
+      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+      animation: fadeIn 0.2s ease-out;
     }
     .login-card {
-      background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 380px; text-align: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      background: var(--card); padding: 35px 30px; border-radius: 16px; width: 90%; max-width: 400px;
+      text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
     }
-    
-    /* Header & Nav */
+    .login-card h2 { margin-top: 0; color: var(--text-dark); font-size: 1.5rem; }
+
+    /* Header & Navigation */
     header {
-      background: var(--primary); color: white; padding: 15px 20px; display: flex;
-      justify-content: space-between; align-items: center; flex-wrap: wrap;
+      background: var(--primary); color: white; padding: 18px 24px; display: flex;
+      justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
     }
     .nav-tabs {
-      display: flex; gap: 8px; overflow-x: auto; padding: 10px 15px; background: white;
-      border-bottom: 1px solid #cbd5e1;
+      display: flex; gap: 10px; overflow-x: auto; padding: 12px 24px; background: white;
+      border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      scrollbar-width: thin;
     }
     .tab-btn {
-      padding: 8px 14px; border: none; background: #e2e8f0; border-radius: 6px; cursor: pointer;
-      font-weight: 600; font-size: 13px; white-space: nowrap; color: #475569;
+      padding: 9px 16px; border: 1px solid var(--border); background: white; border-radius: 8px;
+      cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap; color: var(--text);
+      transition: var(--transition);
     }
-    .tab-btn.active { background: var(--accent); color: white; }
+    .tab-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
 
-    /* Layout */
-    .container { padding: 15px; max-width: 1200px; margin: 0 auto; }
-    .page { display: none; }
-    .page.active { display: block; }
-    
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
-    .card { background: var(--card); padding: 18px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-    
-    /* Forms & Inputs */
-    label { font-size: 12px; font-weight: bold; color: #64748b; margin-top: 8px; display: block; }
+    /* Layout Structure */
+    .container { padding: 24px; max-width: 1280px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .card {
+      background: var(--card); padding: 22px; border-radius: var(--radius);
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .card:hover { box-shadow: 0 10px 20px -3px rgba(15, 23, 42, 0.08); }
+    .card h3 { margin-top: 0; font-size: 1.15rem; color: var(--text-dark); border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+
+    /* Form Controls */
+    label { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 12px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
     input, select, textarea {
-      width: 100%; padding: 10px; margin: 4px 0 10px 0; border: 1px solid #cbd5e1;
-      border-radius: 6px; font-size: 14px;
+      width: 100%; padding: 11px 14px; margin: 6px 0 14px 0; border: 1px solid var(--border);
+      border-radius: 8px; font-size: 14px; background: #fff; color: var(--text-dark);
+      transition: var(--transition);
     }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    
     button {
-      padding: 10px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
-      transition: 0.2s;
+      padding: 11px 18px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+      transition: var(--transition); font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
+    button:active { transform: scale(0.98); }
     .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
     .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #047857; }
     .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #b91c1c; }
     .btn-warning { background: var(--warning); color: white; }
+    .btn-warning:hover { background: #b45309; }
 
     /* Tables */
-    .table-container { overflow-x: auto; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-    th, td { border: 1px solid #e2e8f0; padding: 10px; }
-    th { background: #f8fafc; font-weight: bold; color: #334155; }
-    
-    /* Stats & Badges */
-    .stat-box { text-align: center; padding: 15px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; }
-    .stat-val { font-size: 20px; font-weight: bold; color: var(--accent); margin-top: 5px; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-    .badge-paid { background: #dcfce7; color: #15803d; }
-    .badge-unpaid { background: #fee2e2; color: #b91c1c; }
+    .table-container { overflow-x: auto; margin-top: 12px; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; background: white; }
+    th, td { border-bottom: 1px solid var(--border); padding: 12px 14px; }
+    th { background: #f8fafc; font-weight: 700; color: var(--text-dark); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+    tr:hover { background: #f8fafc; }
 
-    /* Invoice Preview & Watermark */
+    /* Stat Cards */
+    .stat-box {
+      text-align: center; padding: 20px; border-radius: var(--radius); background: white;
+      border: 1px solid var(--border); box-shadow: var(--shadow); position: relative; overflow: hidden;
+    }
+    .stat-box::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent);
+    }
+    .stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+    .stat-val { font-size: 24px; font-weight: 800; color: var(--text-dark); margin-top: 6px; }
+
+    /* Badges */
+    .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .badge-paid { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-unpaid { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+    /* Invoice Layout & Watermark */
     .invoice-box {
-      border: 2px solid #000; padding: 25px; background: white; position: relative; overflow: hidden;
+      border: 2px solid var(--text-dark); padding: 30px; background: white; position: relative;
+      overflow: hidden; border-radius: var(--radius); box-shadow: var(--shadow);
     }
     .watermark {
-      position: absolute; top: 35%; left: 15%; transform: rotate(-30deg); font-size: 55px;
-      font-weight: 900; opacity: 0.15; border: 5px solid; padding: 10px 20px; text-transform: uppercase;
+      position: absolute; top: 35%; left: 15%; transform: rotate(-25deg); font-size: 55px;
+      font-weight: 900; opacity: 0.12; border: 6px solid; padding: 10px 25px; text-transform: uppercase; letter-spacing: 2px;
     }
     .watermark.paid { color: var(--success); border-color: var(--success); }
     .watermark.unpaid { color: var(--danger); border-color: var(--danger); }
@@ -99,22 +145,22 @@
   <!-- 7. Login Page -->
   <div id="loginOverlay">
     <div class="login-card">
-      <h2 style="margin-top:0; color: var(--accent);">🏗️ Construction by Labor</h2>
-      <p style="font-size: 13px; color: #64748b;">Admin Access Authorization</p>
+      <h2 style="color: var(--accent);">🏗️ Construction ERP</h2>
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">Enter credentials to access secure database</p>
       <input type="text" id="loginUser" placeholder="Username (admin)" value="admin">
       <input type="password" id="loginPass" placeholder="Password (1234)" value="1234">
-      <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">Login System</button>
+      <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">Secure Login</button>
     </div>
   </div>
 
-  <!-- App Header -->
+  <!-- Header -->
   <header>
     <div>
-      <h3 style="margin: 0;">🏗️ Construction by Labor</h3>
-      <small id="currentProjectDisplay">Active Project: None Selected</small>
+      <h2 style="margin: 0; font-size: 1.25rem;">🏗️ Construction by Labor</h2>
+      <small id="currentProjectDisplay" style="color: #94a3b8;">Enterprise System Active</small>
     </div>
-    <div style="display: flex; gap: 8px;">
-      <button class="btn-danger" style="font-size: 11px;" onclick="restartApplication()">⚠️ 8. Full Application Restart</button>
+    <div>
+      <button class="btn-danger" style="font-size: 12px; padding: 8px 12px;" onclick="restartApplication()">⚠️ 8. Full App Restart</button>
     </div>
   </header>
 
@@ -124,7 +170,6 @@
     <button class="tab-btn" onclick="switchTab('projects')">1, 9, 11, 12. Projects</button>
     <button class="tab-btn" onclick="switchTab('payments')">2. Banks & Wallets</button>
     <button class="tab-btn" onclick="switchTab('materials')">13, 14, 18, 19. Materials & Suppliers</button>
-    <button class="tab-btn" onclick="switchTab('calculator')">15. AI Quantity Calculator</button>
     <button class="tab-btn" onclick="switchTab('labor')">16. Labor Wages</button>
     <button class="tab-btn" onclick="switchTab('invoices')">4, 5, 6, 17. Invoices & Bills</button>
     <button class="tab-btn" onclick="switchTab('reports')">10. Monthly Reports</button>
@@ -134,21 +179,21 @@
 
     <!-- 3. Dashboard -->
     <div id="dashboard" class="page active">
-      <div class="grid" style="margin-bottom: 15px;">
+      <div class="grid" style="margin-bottom: 20px;">
         <div class="stat-box">
-          <div>Total Active Projects</div>
+          <div class="stat-label">Total Active Projects</div>
           <div class="stat-val" id="statProjects">0</div>
         </div>
-        <div class="stat-box">
-          <div>Total Cash / Bank Balance</div>
-          <div class="stat-val" id="statBalance">Rs. 0</div>
+        <div class="stat-box" style="border-left-color: var(--success);">
+          <div class="stat-label">Total Cash & Bank Balance</div>
+          <div class="stat-val" id="statBalance" style="color: var(--success);">Rs. 0</div>
         </div>
-        <div class="stat-box">
-          <div>Pending Labor Wages</div>
+        <div class="stat-box" style="border-left-color: var(--danger);">
+          <div class="stat-label">Pending Labor Wages</div>
           <div class="stat-val" id="statLaborPending" style="color: var(--danger);">Rs. 0</div>
         </div>
-        <div class="stat-box">
-          <div>Material Purchases</div>
+        <div class="stat-box" style="border-left-color: var(--warning);">
+          <div class="stat-label">Material Purchases</div>
           <div class="stat-val" id="statMaterialCost" style="color: var(--warning);">Rs. 0</div>
         </div>
       </div>
@@ -184,11 +229,11 @@
           <input type="text" id="projLoc" placeholder="e.g. Autobahn Road, Hyderabad">
           <label>9. Total Project Budget (Rs.)</label>
           <input type="number" id="projBudget" placeholder="e.g. 5000000">
-          <button class="btn-primary" onclick="addProject()">12. Add Project</button>
+          <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="addProject()">12. Add Project</button>
         </div>
 
         <div class="card">
-          <h3>🏗️ All Projects List</h3>
+          <h3>🏗️ All Projects Registry</h3>
           <div class="table-container">
             <table>
               <thead>
@@ -207,15 +252,15 @@
       </div>
     </div>
 
-    <!-- 2. Banks & Cash & EasyPaisa & JazzCash Option -->
+    <!-- 2. Banks & Wallets -->
     <div id="payments" class="page">
       <div class="card">
         <h3>💳 Financial Accounts & Wallets Management</h3>
-        <div class="grid" style="margin-bottom: 15px;">
-          <div class="stat-box">💵 Cash in Hand: <strong id="valCash">Rs. 0</strong></div>
-          <div class="stat-box">🏦 Bank Account: <strong id="valBank">Rs. 0</strong></div>
-          <div class="stat-box">📱 EasyPaisa: <strong id="valEasy">Rs. 0</strong></div>
-          <div class="stat-box">📲 JazzCash: <strong id="valJazz">Rs. 0</strong></div>
+        <div class="grid" style="margin-bottom: 20px;">
+          <div class="stat-box">💵 Cash in Hand: <br><strong id="valCash" style="font-size: 18px;">Rs. 0</strong></div>
+          <div class="stat-box">🏦 Bank Account: <br><strong id="valBank" style="font-size: 18px;">Rs. 0</strong></div>
+          <div class="stat-box">📱 EasyPaisa: <br><strong id="valEasy" style="font-size: 18px;">Rs. 0</strong></div>
+          <div class="stat-box">📲 JazzCash: <br><strong id="valJazz" style="font-size: 18px;">Rs. 0</strong></div>
         </div>
         
         <h4>Deposit / Transfer Funds into App Accounts</h4>
@@ -234,7 +279,7 @@
             <input type="number" id="accAmount" placeholder="10000">
           </div>
         </div>
-        <button class="btn-success" onclick="addFunds()">Deposit Balance</button>
+        <button class="btn-success" style="margin-top: 10px;" onclick="addFunds()">Deposit Balance</button>
       </div>
     </div>
 
@@ -260,7 +305,7 @@
           <label>19. Purchase Price Per Unit (Rs.)</label>
           <input type="number" id="matPrice" placeholder="e.g. 1450" oninput="calcMatTotal()">
           <label>Total Bill Amount (Rs.)</label>
-          <input type="number" id="matTotal" readonly>
+          <input type="number" id="matTotal" readonly style="background: #f1f5f9;">
           <label>Payment Source</label>
           <select id="matPaySource">
             <option value="Cash">Cash</option>
@@ -268,7 +313,7 @@
             <option value="EasyPaisa">EasyPaisa</option>
             <option value="JazzCash">JazzCash</option>
           </select>
-          <button class="btn-primary" onclick="recordMaterialPurchase()">Save Purchase Record</button>
+          <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="recordMaterialPurchase()">Save Purchase Record</button>
         </div>
 
         <div class="card">
@@ -282,33 +327,11 @@
                   <th>Item</th>
                   <th>Qty & Price</th>
                   <th>Total Bill</th>
-                  <th>Payment Mode</th>
+                  <th>Mode</th>
                 </tr>
               </thead>
               <tbody id="materialHistoryTable"></tbody>
             </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 15. AI Base Material Quantity Calculator -->
-    <div id="calculator" class="page">
-      <div class="card">
-        <h3>🤖 15. AI-Based Material Quantity Estimator</h3>
-        <p style="font-size: 13px; color: #64748b;">Apne Plot / Slab ka Covered Area (Square Feet) likhein. Calculator AI estimation rules ke mutabiq standard construction materials calculate karega.</p>
-        
-        <label>Total Covered Area (Square Feet)</label>
-        <input type="number" id="aiArea" placeholder="e.g. 1200 (120 Sq Yards / 5 Marla)">
-        <button class="btn-warning" onclick="calculateAIMaterials()">⚡ Calculate Required Materials</button>
-
-        <div id="aiResult" style="margin-top: 20px; display: none;">
-          <h4>Estimated Materials Required:</h4>
-          <div class="grid">
-            <div class="stat-box">🧱 Bricks (Eent): <br><strong id="resBricks" class="stat-val">0</strong></div>
-            <div class="stat-box">📦 Cement Bags: <br><strong id="resCement" class="stat-val">0</strong></div>
-            <div class="stat-box">🏗️ Steel (Saria): <br><strong id="resSteel" class="stat-val">0 Tons</strong></div>
-            <div class="stat-box">🏜️ Sand (Reti): <br><strong id="resSand" class="stat-val">0 Sqft</strong></div>
           </div>
         </div>
       </div>
@@ -330,7 +353,7 @@
             <option value="Paid">Paid (Ada Kar Diya)</option>
             <option value="Unpaid">Unpaid (Baqaya / Pending)</option>
           </select>
-          <button class="btn-primary" onclick="addLaborRecord()">Add Wage Record</button>
+          <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="addLaborRecord()">Add Wage Record</button>
         </div>
 
         <div class="card">
@@ -371,29 +394,29 @@
             <option value="PAID">PAID</option>
             <option value="UNPAID">UNPAID</option>
           </select>
-          <button class="btn-success" onclick="generateInvoice()">Create & Print Invoice</button>
+          <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="generateInvoice()">Create & Preview Invoice</button>
         </div>
 
         <div class="card">
           <h3>📄 Invoice Preview & 6. Export / WhatsApp</h3>
-          <div id="invoicePrintArea">
+          <div id="invoicePrintArea" style="margin-top: 10px;">
             <div class="invoice-box" id="invBox">
               <div class="watermark" id="invWatermark">UNPAID</div>
-              <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 12px;">
                 <div>
-                  <h2 style="margin: 0; color: var(--accent);">Construction by Labor</h2>
-                  <small>Automated Site Management ERP</small>
+                  <h3 style="margin: 0; color: var(--accent);">Construction by Labor</h3>
+                  <small style="color: #64748b;">Enterprise ERP Billing System</small>
                 </div>
                 <div style="text-align: right;">
-                  <strong style="font-size: 16px;">INVOICE</strong><br>
-                  <small id="invDate">Date: --/--/----</small>
+                  <strong style="font-size: 15px;">INVOICE</strong><br>
+                  <small id="invDate" style="color: #64748b;">Date: --/--/----</small>
                 </div>
               </div>
-              <div style="margin: 15px 0;">
+              <div style="margin: 15px 0; font-size: 13px;">
                 <strong>Bill To:</strong> <span id="invOutParty">----------------</span><br>
                 <strong>Project:</strong> <span id="invOutProj">----------------</span>
               </div>
-              <table>
+              <table style="margin-top: 10px;">
                 <thead>
                   <tr>
                     <th>Description</th>
@@ -407,14 +430,14 @@
                   </tr>
                 </tbody>
               </table>
-              <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 10px; font-size: 11px; text-align: center; color: #64748b;">
-                17. Official Verified Stamp by <strong>Construction by Labor Application System</strong>
+              <div style="margin-top: 25px; border-top: 1px solid var(--border); padding-top: 10px; font-size: 11px; text-align: center; color: #64748b;">
+                17. Official Verified Stamp by <strong>Construction by Labor Enterprise System</strong>
               </div>
             </div>
           </div>
-          <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="btn-primary" onclick="downloadInvoicePDF()">📥 Download PDF</button>
-            <button class="btn-success" onclick="shareWhatsApp()">📱 Send on WhatsApp</button>
+          <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <button class="btn-primary" style="flex: 1;" onclick="downloadInvoicePDF()">📥 Download PDF</button>
+            <button class="btn-success" style="flex: 1;" onclick="shareWhatsApp()">📱 Send on WhatsApp</button>
           </div>
         </div>
       </div>
@@ -423,11 +446,11 @@
     <!-- 10. Monthly Reports All Projects -->
     <div id="reports" class="page">
       <div class="card">
-        <h3>📈 10. Monthly Reports (All Projects Overview)</h3>
-        <p style="font-size: 13px; color: #64748b;">Poore mahine ka multi-project cost audit aur detailed financial summary report.</p>
-        <button class="btn-primary" onclick="generateMonthlyReport()">🔄 Generate Full Report</button>
+        <h3>📈 10. Monthly Reports (All Projects Audit)</h3>
+        <p style="font-size: 13px; color: #64748b;">Complete multi-project financial audit summary and budget allocation tracking.</p>
+        <button class="btn-primary" style="margin: 10px 0;" onclick="generateMonthlyReport()">🔄 Refresh & Generate Report</button>
         
-        <div class="table-container" style="margin-top: 15px;">
+        <div class="table-container">
           <table>
             <thead>
               <tr>
@@ -449,7 +472,7 @@
 
   <script>
     // State & Storage Initialization
-    let appData = JSON.parse(localStorage.getItem('CBL_APP_DATA')) || {
+    let appData = JSON.parse(localStorage.getItem('CBL_ENTERPRISE_DATA')) || {
       projects: [],
       accounts: { Cash: 0, Bank: 0, EasyPaisa: 0, JazzCash: 0 },
       materials: [],
@@ -459,7 +482,7 @@
     };
 
     function saveData() {
-      localStorage.setItem('CBL_APP_DATA', JSON.stringify(appData));
+      localStorage.setItem('CBL_ENTERPRISE_DATA', JSON.stringify(appData));
       refreshUI();
     }
 
@@ -474,7 +497,7 @@
       }
     }
 
-    // Tab Switcher
+    // Tab Switcher with animations
     function switchTab(tabId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -485,7 +508,7 @@
     // 8. Full Restart Application Button
     function restartApplication() {
       if (confirm("🚨 Kya aap poori application ko RESTART aur TAMAM DATA DELETE karna chahte hain?")) {
-        localStorage.removeItem('CBL_APP_DATA');
+        localStorage.removeItem('CBL_ENTERPRISE_DATA');
         location.reload();
       }
     }
@@ -503,7 +526,7 @@
       document.getElementById('projLoc').value = '';
       document.getElementById('projBudget').value = '';
       saveData();
-      alert("Project Naya Ban Gaya!");
+      alert("Project Successfully Created!");
     }
 
     // 2. Deposit Funds
@@ -540,7 +563,7 @@
       const total = qty * price;
       const mode = document.getElementById('matPaySource').value;
 
-      if (!supplier || total <= 0) { alert("Supplier Name aur valid Material quantity/price darj karein!"); return; }
+      if (!supplier || total <= 0) { alert("Supplier Name aur valid quantity/price darj karein!"); return; }
 
       if (appData.accounts[mode] < total) {
         alert("⚠️ Selected Payment Source (" + mode + ") mein kafi balance nahi hai!");
@@ -563,21 +586,7 @@
       });
 
       saveData();
-      alert("Material Purchase Record Saved!");
-    }
-
-    // 15. AI Base Calculator logic
-    function calculateAIMaterials() {
-      const area = parseFloat(document.getElementById('aiArea').value) || 0;
-      if (area <= 0) return;
-
-      // Standard Engineering ratios per Sq Ft
-      document.getElementById('resBricks').innerText = Math.round(area * 42) + " Nos";
-      document.getElementById('resCement').innerText = Math.round(area * 0.4) + " Bags";
-      document.getElementById('resSteel').innerText = (area * 0.0025).toFixed(2) + " Tons";
-      document.getElementById('resSand').innerText = Math.round(area * 1.8) + " Sqft";
-
-      document.getElementById('aiResult').style.display = 'block';
+      alert("Material Purchase Saved Successfully!");
     }
 
     // 16. Labor Wage Record
@@ -604,6 +613,8 @@
       }
 
       saveData();
+      document.getElementById('workerName').value = '';
+      document.getElementById('workerWage').value = '';
     }
 
     function toggleLaborPay(laborId) {
@@ -652,11 +663,10 @@
     function shareWhatsApp() {
       const party = document.getElementById('invOutParty').innerText;
       const amt = document.getElementById('invOutAmt').innerText;
-      const text = `*Construction by Labor - Bill Invoice*%0A*Client:* ${party}%0A*Amount:* ${amt}%0A*Status:* Verified Invoice Issued.`;
+      const text = `*Construction by Labor - Official Invoice*%0A*Client:* ${party}%0A*Amount:* ${amt}%0A*Status:* Verified Invoice Issued.`;
       window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     }
 
-    // Helper
     function getProjName(id) {
       const p = appData.projects.find(x => x.id == id);
       return p ? p.name : 'N/A';
@@ -686,7 +696,6 @@
 
     // Core UI Refresh Loop
     function refreshUI() {
-      // 2. Wallets
       document.getElementById('valCash').innerText = 'Rs. ' + appData.accounts.Cash.toLocaleString();
       document.getElementById('valBank').innerText = 'Rs. ' + appData.accounts.Bank.toLocaleString();
       document.getElementById('valEasy').innerText = 'Rs. ' + appData.accounts.EasyPaisa.toLocaleString();
@@ -695,7 +704,6 @@
       const totalBalance = Object.values(appData.accounts).reduce((a,b)=>a+b, 0);
       document.getElementById('statBalance').innerText = 'Rs. ' + totalBalance.toLocaleString();
 
-      // Stats
       document.getElementById('statProjects').innerText = appData.projects.length;
       
       const pendingLabor = appData.labor.filter(l => l.status === 'Unpaid').reduce((sum, l) => sum + l.wage, 0);
@@ -704,14 +712,12 @@
       const totalMatCost = appData.materials.reduce((sum, m) => sum + m.total, 0);
       document.getElementById('statMaterialCost').innerText = 'Rs. ' + totalMatCost.toLocaleString();
 
-      // Dropdowns
       const projDropdowns = ['matProjSelect', 'laborProjSelect', 'invProjSelect'];
       projDropdowns.forEach(id => {
         const el = document.getElementById(id);
-        el.innerHTML = appData.projects.map(p => `<option value="${p.id}">${p.name} (${p.loc})</option>`).join('');
+        el.innerHTML = appData.projects.length > 0 ? appData.projects.map(p => `<option value="${p.id}">${p.name} (${p.loc})</option>`).join('') : '<option>Pehle Project Add Karein</option>';
       });
 
-      // Tables Rendering
       const projTbody = document.getElementById('projectsTable');
       projTbody.innerHTML = appData.projects.map(p => `
         <tr>
@@ -742,7 +748,7 @@
           <td>${getProjName(l.projId)}</td>
           <td>Rs. ${l.wage.toLocaleString()}</td>
           <td><span class="badge ${l.status === 'Paid' ? 'badge-paid' : 'badge-unpaid'}">${l.status}</span></td>
-          <td>${l.status === 'Unpaid' ? `<button class="btn-success" style="padding: 3px 6px; font-size:11px;" onclick="toggleLaborPay(${l.id})">Mark Paid</button>` : 'Paid'}</td>
+          <td>${l.status === 'Unpaid' ? `<button class="btn-success" style="padding: 4px 8px; font-size:11px;" onclick="toggleLaborPay(${l.id})">Mark Paid</button>` : 'Paid'}</td>
         </tr>
       `).join('');
 
@@ -757,6 +763,8 @@
           <td><strong>Rs. ${g.amount.toLocaleString()}</strong></td>
         </tr>
       `).join('');
+
+      generateMonthlyReport();
     }
 
     function deleteProj(id) {
@@ -764,7 +772,6 @@
       saveData();
     }
 
-    // Init Application
     refreshUI();
   </script>
 </body>
