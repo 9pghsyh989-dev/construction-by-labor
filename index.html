@@ -237,8 +237,17 @@
           <input type="text" id="projName" placeholder="e.g. Commercial Plaza Block A">
           <label>Project Location Name</label>
           <input type="text" id="projLoc" placeholder="e.g. Autobahn Road, Hyderabad">
-          <label>Total Project Budget (Rs.)</label>
+          <label>Total Project Budget / Initial Fund (Rs.)</label>
           <input type="number" id="projBudget" placeholder="e.g. 5000000">
+          <label>Select Deposit Account for Project Budget</label>
+          <select id="projAccount">
+            <option value="Cash">Cash in Hand</option>
+            <option value="Bank">Bank Account</option>
+            <option value="EasyPaisa">EasyPaisa</option>
+            <option value="JazzCash">JazzCash</option>
+          </select>
+          <label>Project Start Date</label>
+          <input type="date" id="projDate">
           <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="addProject()">Add Project</button>
         </div>
 
@@ -324,13 +333,15 @@
           <input type="number" id="matPrice" placeholder="e.g. 1450" oninput="calcMatTotal()">
           <label>Total Bill Amount (Rs.)</label>
           <input type="number" id="matTotal" readonly style="background: #f1f5f9;">
-          <label>Payment Source</label>
+          <label>Payment Source (Auto Cut)</label>
           <select id="matPaySource">
             <option value="Cash">Cash</option>
             <option value="Bank">Bank</option>
             <option value="EasyPaisa">EasyPaisa</option>
             <option value="JazzCash">JazzCash</option>
           </select>
+          <label>Purchase Date</label>
+          <input type="date" id="matDate">
           <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="recordMaterialPurchase()">Save Purchase Record</button>
         </div>
 
@@ -406,6 +417,15 @@
             <option value="Paid">Paid (Ada Kar Diya)</option>
             <option value="Unpaid">Unpaid (Baqaya / Pending)</option>
           </select>
+          <label>Payment Source (Agar Paid ho)</label>
+          <select id="laborPaySource">
+            <option value="Cash">Cash</option>
+            <option value="Bank">Bank</option>
+            <option value="EasyPaisa">EasyPaisa</option>
+            <option value="JazzCash">JazzCash</option>
+          </select>
+          <label>Record Date</label>
+          <input type="date" id="laborDate">
           <div style="display: flex; gap: 10px; margin-top: 10px;">
             <button class="btn-primary" style="flex: 1;" onclick="saveLaborRecord()" id="laborSubmitBtn">Add Wage Record</button>
             <button class="btn-warning" style="display: none;" id="cancelLaborEditBtn" onclick="resetLaborForm()">Cancel</button>
@@ -450,6 +470,8 @@
             <option value="PAID">PAID</option>
             <option value="UNPAID">UNPAID</option>
           </select>
+          <label>Invoice Date</label>
+          <input type="date" id="invDateInput">
           <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="generateInvoice()">Create & Preview Invoice</button>
         </div>
 
@@ -547,7 +569,7 @@
   </div>
 
   <script>
-    let appData = JSON.parse(localStorage.getItem('MA_HAQUE_CONSTRUCTION_V5')) || {
+    let appData = JSON.parse(localStorage.getItem('MA_HAQUE_CONSTRUCTION_V6')) || {
       projects: [],
       accounts: { Cash: 0, Bank: 0, EasyPaisa: 0, JazzCash: 0 },
       materials: [],
@@ -558,13 +580,22 @@
     };
 
     function saveData() {
-      localStorage.setItem('MA_HAQUE_CONSTRUCTION_V5', JSON.stringify(appData));
+      localStorage.setItem('MA_HAQUE_CONSTRUCTION_V6', JSON.stringify(appData));
       refreshUI();
     }
 
+    // Set today's date by default on date inputs
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      if(document.getElementById('projDate')) document.getElementById('projDate').value = today;
+      if(document.getElementById('matDate')) document.getElementById('matDate').value = today;
+      if(document.getElementById('laborDate')) document.getElementById('laborDate').value = today;
+      if(document.getElementById('invDateInput')) document.getElementById('invDateInput').value = today;
+    });
+
     function handleLogin() {
-      const u = document.getElementById('loginUser').value;
-      const p = document.getElementById('loginPass').value;
+      const u = document.getElementById('loginUser').value.trim();
+      const p = document.getElementById('loginPass').value.trim();
       if (u === 'admin' && p === '1234') {
         document.getElementById('loginOverlay').style.display = 'none';
       } else {
@@ -581,7 +612,7 @@
 
     function restartApplication() {
       if (confirm("🚨 Kya aap poori application ko RESTART aur TAMAM DATA DELETE karna chahte hain?")) {
-        localStorage.removeItem('MA_HAQUE_CONSTRUCTION_V5');
+        localStorage.removeItem('MA_HAQUE_CONSTRUCTION_V6');
         location.reload();
       }
     }
@@ -615,16 +646,30 @@
       const name = document.getElementById('projName').value;
       const loc = document.getElementById('projLoc').value;
       const budget = parseFloat(document.getElementById('projBudget').value) || 0;
-      const currentDate = new Date().toLocaleDateString();
+      const acc = document.getElementById('projAccount').value;
+      const dateVal = document.getElementById('projDate').value || new Date().toLocaleDateString();
 
       if (!name || !loc) { alert("Project Name aur Location likhna zaroori hai!"); return; }
 
-      appData.projects.push({ id: Date.now(), name, loc, budget, date: currentDate, status: 'Active' });
+      // Auto add budget fund to selected account
+      if (budget > 0) {
+        appData.accounts[acc] += budget;
+        appData.ledger.push({
+          date: dateVal,
+          project: name,
+          party: 'Initial Project Budget (' + acc + ')',
+          type: 'CREDIT',
+          mode: acc,
+          amount: budget
+        });
+      }
+
+      appData.projects.push({ id: Date.now(), name, loc, budget, date: dateVal, status: 'Active' });
       document.getElementById('projName').value = '';
       document.getElementById('projLoc').value = '';
       document.getElementById('projBudget').value = '';
       saveData();
-      alert("Project Successfully Created with Date!");
+      alert("Project Successfully Created & Balance Added to " + acc + "!");
     }
 
     function addFunds() {
@@ -642,6 +687,7 @@
       });
       document.getElementById('accAmount').value = '';
       saveData();
+      alert("Funds successfully deposited into " + acc + "!");
     }
 
     function addNewMaterialItem() {
@@ -668,6 +714,7 @@
       const price = parseFloat(document.getElementById('matPrice').value) || 0;
       const total = qty * price;
       const mode = document.getElementById('matPaySource').value;
+      const dateVal = document.getElementById('matDate').value || new Date().toLocaleDateString();
 
       if (!supplier || total <= 0) { alert("Supplier Name aur valid quantity/price darj karein!"); return; }
 
@@ -676,14 +723,15 @@
         return;
       }
 
+      // Auto deduct from selected account
       appData.accounts[mode] -= total;
       appData.materials.push({
-        date: new Date().toLocaleDateString(),
+        date: dateVal,
         projId, supplier, item, qty, price, total, mode
       });
 
       appData.ledger.push({
-        date: new Date().toLocaleDateString(),
+        date: dateVal,
         project: getProjName(projId),
         party: supplier,
         type: 'DEBIT (Material)',
@@ -692,7 +740,7 @@
       });
 
       saveData();
-      alert("Material Purchase Saved Successfully!");
+      alert("Material Purchase Saved & Amount Auto Cut from " + mode + "!");
     }
 
     function saveLaborRecord() {
@@ -701,7 +749,8 @@
       const name = document.getElementById('workerName').value;
       const wage = parseFloat(document.getElementById('workerWage').value) || 0;
       const status = document.getElementById('workerPayStatus').value;
-      const currentDate = new Date().toLocaleDateString();
+      const mode = document.getElementById('laborPaySource').value;
+      const dateVal = document.getElementById('laborDate').value || new Date().toLocaleDateString();
 
       if (!name || wage <= 0) { alert("Worker ka naam aur wage likhna zaroori hai!"); return; }
 
@@ -711,38 +760,45 @@
           l.projId = projId;
           l.name = name;
           l.wage = wage;
+          l.mode = mode;
           if (l.status !== status) {
             l.status = status;
-            l.date = currentDate;
+            l.date = dateVal;
           }
         }
         resetLaborForm();
       } else {
+        if (status === 'Paid') {
+          if (appData.accounts[mode] < wage) {
+            alert("⚠️ Selected Payment Source (" + mode + ") mein kafi balance nahi hai!");
+            return;
+          }
+          appData.accounts[mode] -= wage;
+          appData.ledger.push({
+            date: dateVal,
+            project: getProjName(projId),
+            party: 'Labor: ' + name,
+            type: 'DEBIT (Labor Wage)',
+            mode: mode,
+            amount: wage
+          });
+        }
+
         appData.labor.push({ 
           id: Date.now(), 
           projId, 
           name, 
           wage, 
           status, 
-          date: currentDate 
+          mode,
+          date: dateVal 
         });
-        
-        if (status === 'Paid') {
-          appData.accounts.Cash -= wage;
-          appData.ledger.push({
-            date: currentDate,
-            project: getProjName(projId),
-            party: 'Labor: ' + name,
-            type: 'DEBIT (Labor Wage)',
-            mode: 'Cash',
-            amount: wage
-          });
-        }
       }
 
       saveData();
       document.getElementById('workerName').value = '';
       document.getElementById('workerWage').value = '';
+      alert("Labor record successfully saved!");
     }
 
     function editLabor(id) {
@@ -753,6 +809,8 @@
         document.getElementById('workerName').value = l.name;
         document.getElementById('workerWage').value = l.wage;
         document.getElementById('workerPayStatus').value = l.status;
+        if(l.mode) document.getElementById('laborPaySource').value = l.mode;
+        if(l.date) document.getElementById('laborDate').value = l.date;
         
         document.getElementById('laborFormTitle').innerText = '✏️ Edit Labor Record';
         document.getElementById('laborSubmitBtn').innerText = 'Update Record';
@@ -772,18 +830,29 @@
     function toggleLaborPay(laborId) {
       const l = appData.labor.find(x => x.id === laborId);
       if (l && l.status === 'Unpaid') {
+        let mode = prompt("Kis account se payment karni hai? (Cash / Bank / EasyPaisa / JazzCash)", "Cash");
+        if (!mode || !appData.accounts[mode]) { alert("Ghalat account name!"); return; }
+        
+        if (appData.accounts[mode] < l.wage) {
+          alert("⚠️ Is account mein kafi balance nahi hai!");
+          return;
+        }
+
+        appData.accounts[mode] -= l.wage;
         l.status = 'Paid';
+        l.mode = mode;
         l.date = new Date().toLocaleDateString();
-        appData.accounts.Cash -= l.wage;
+
         appData.ledger.push({
           date: l.date,
           project: getProjName(l.projId),
           party: 'Labor: ' + l.name,
           type: 'DEBIT (Labor Wage)',
-          mode: 'Cash',
+          mode: mode,
           amount: l.wage
         });
         saveData();
+        alert("Payment successful & amount auto cut from " + mode + "!");
       }
     }
 
@@ -793,6 +862,7 @@
       const desc = document.getElementById('invDesc').value;
       const amt = parseFloat(document.getElementById('invAmount').value) || 0;
       const status = document.getElementById('invStatus').value;
+      const dateVal = document.getElementById('invDateInput').value || new Date().toLocaleDateString();
 
       if (!party || amt <= 0) {
         alert("Baraye meherbani Party Name aur valid Amount darj karein!");
@@ -803,7 +873,7 @@
       document.getElementById('invOutProj').innerText = getProjName(projId);
       document.getElementById('invOutDesc').innerText = desc;
       document.getElementById('invOutAmt').innerText = 'Rs. ' + amt.toLocaleString();
-      document.getElementById('invDate').innerText = 'Date: ' + new Date().toLocaleDateString();
+      document.getElementById('invDate').innerText = 'Date: ' + dateVal;
 
       const mark = document.getElementById('invWatermark');
       mark.innerText = status;
@@ -946,7 +1016,7 @@
           <td>Rs. ${l.wage.toLocaleString()}</td>
           <td>
             <span class="badge ${l.status === 'Paid' ? 'badge-paid' : 'badge-unpaid'}">${l.status}</span><br>
-            <small style="font-size: 10px; color: #64748b;">📅 ${l.date || 'N/A'}</small>
+            <small style="font-size: 10px; color: #64748b;">📅 ${l.date || 'N/A'} (${l.mode || 'Cash'})</small>
           </td>
           <td>
             <div style="display: flex; gap: 4px;">
@@ -958,992 +1028,7 @@
       `).join('');
 
       const ledTbody = document.getElementById('dashboardLedgerTable');
-      ledTbody.innerHTML = appData.ledger.slice(-10).reverse().map(g => `
-        <tr>
-          <td>${g.date}</td>
-          <td>${g.project}</td>
-          <td>${g.party}</td>
-          <td><span class="badge ${g.type.includes('CREDIT') ? 'badge-paid' : 'badge-unpaid'}">${g.type}</span></td>
-          <td>${g.mode}</td>
-          <td><strong>Rs. ${g.amount.toLocaleString()}</strong></td>
-        </tr>
-      `).join('');
-
-      generateMonthlyReport();
-    }
-
-    function deleteProj(id) {
-      appData.projects = appData.projects.filter(p => p.id !== id);
-      saveData();
-    }
-
-    refreshUI();
-  </script>
-</body>
-</html>
-!DOCTYPE html>
-<html lang="ur">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>M.A. HAQUE BUILDING CONSTRUCTION - ERP</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <style>
-    :root {
-      --primary: #0f172a;
-      --primary-light: #1e293b;
-      --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --success: #059669;
-      --danger: #dc2626;
-      --warning: #d97706;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #334155;
-      --text-dark: #0f172a;
-      --border: #e2e8f0;
-      --radius: 12px;
-      --shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-    body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 40px; }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .page { display: none; animation: fadeIn 0.3s ease-in-out forwards; }
-    .page.active { display: block; }
-
-    #loginOverlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: center; z-index: 9999;
-      animation: fadeIn 0.2s ease-out;
-    }
-    .login-card {
-      background: var(--card); padding: 35px 30px; border-radius: 16px; width: 90%; max-width: 400px;
-      text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-    }
-    .login-card h2 { margin-top: 0; color: var(--accent); font-size: 1.3rem; }
-
-    header {
-      background: var(--primary); color: white; padding: 18px 24px; display: flex;
-      justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
-    .nav-tabs {
-      display: flex; gap: 10px; overflow-x: auto; padding: 12px 24px; background: white;
-      border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-      scrollbar-width: thin;
-    }
-    .tab-btn {
-      padding: 9px 16px; border: 1px solid var(--border); background: white; border-radius: 8px;
-      cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap; color: var(--text);
-      transition: var(--transition);
-    }
-    .tab-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
-    .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
-
-    .container { padding: 24px; max-width: 1280px; margin: 0 auto; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-    .card {
-      background: var(--card); padding: 22px; border-radius: var(--radius);
-      box-shadow: var(--shadow); border: 1px solid var(--border);
-      transition: var(--transition);
-    }
-    .card:hover { box-shadow: 0 10px 20px -3px rgba(15, 23, 42, 0.08); }
-    .card h3 { margin-top: 0; font-size: 1.15rem; color: var(--text-dark); border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
-
-    label { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 12px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-    input, select, textarea {
-      width: 100%; padding: 11px 14px; margin: 6px 0 14px 0; border: 1px solid var(--border);
-      border-radius: 8px; font-size: 14px; background: #fff; color: var(--text-dark);
-      transition: var(--transition);
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
-    
-    button {
-      padding: 11px 18px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
-      transition: var(--transition); font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    button:active { transform: scale(0.98); }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-success { background: var(--success); color: white; }
-    .btn-success:hover { background: #047857; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-danger:hover { background: #b91c1c; }
-    .btn-warning { background: var(--warning); color: white; }
-    .btn-warning:hover { background: #b45309; }
-
-    .table-container { overflow-x: auto; margin-top: 12px; border-radius: 8px; border: 1px solid var(--border); }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; background: white; }
-    th, td { border-bottom: 1px solid var(--border); padding: 12px 14px; }
-    th { background: #f8fafc; font-weight: 700; color: var(--text-dark); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-    tr:hover { background: #f8fafc; }
-
-    .stat-box {
-      text-align: center; padding: 20px; border-radius: var(--radius); background: white;
-      border: 1px solid var(--border); box-shadow: var(--shadow); position: relative; overflow: hidden;
-    }
-    .stat-box::before {
-      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent);
-    }
-    .stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-    .stat-val { font-size: 24px; font-weight: 800; color: var(--text-dark); margin-top: 6px; }
-
-    .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
-    .badge-paid { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-    .badge-unpaid { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-
-    .invoice-wrapper {
-      max-width: 420px; margin: 0 auto; background: white;
-    }
-    .invoice-box {
-      border: 2px solid var(--text-dark); padding: 20px; background: white; position: relative;
-      overflow: hidden; border-radius: var(--radius); box-shadow: var(--shadow); font-size: 13px;
-    }
-    .watermark {
-      position: absolute; top: 38%; left: 10%; transform: rotate(-25deg); font-size: 45px;
-      font-weight: 900; opacity: 0.12; border: 5px solid; padding: 8px 20px; text-transform: uppercase; letter-spacing: 2px;
-    }
-    .watermark.paid { color: var(--success); border-color: var(--success); }
-    .watermark.unpaid { color: var(--danger); border-color: var(--danger); }
-
-    .calc-container { max-width: 320px; margin: 0 auto; background: #1e293b; padding: 15px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-    #calcScreen { width: 100%; height: 50px; background: #0f172a; color: #38bdf8; font-size: 22px; text-align: right; padding: 10px; border-radius: 6px; margin-bottom: 12px; border: 1px solid #334155; font-family: monospace; }
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .calc-btn { padding: 14px; font-size: 16px; font-weight: bold; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    .calc-btn:hover { background: #475569; }
-    .calc-btn.op { background: var(--accent); }
-    .calc-btn.eq { background: var(--success); grid-column: span 2; }
-    .calc-btn.clr { background: var(--danger); }
-
-    /* Footer Branding */
-    .app-footer {
-      text-align: center; margin-top: 40px; padding: 15px; font-size: 12px; color: #64748b; border-top: 1px solid var(--border);
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Login Page -->
-  <div id="loginOverlay">
-    <div class="login-card">
-      <h2 style="color: var(--accent);">M.A. HAQUE BUILDING CONSTRUCTION</h2>
-      <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">Enter credentials to access secure database</p>
-      <input type="text" id="loginUser" placeholder="Username (admin)" value="admin">
-      <input type="password" id="loginPass" placeholder="Password (1234)" value="1234">
-      <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">Secure Login</button>
-      <div style="margin-top: 15px; font-size: 11px; color: #94a3b8;">App Powered by USMAN QURESHI | 03463997211</div>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <header>
-    <div>
-      <h2 style="margin: 0; font-size: 1.15rem;">🏗️ M.A. HAQUE BUILDING CONSTRUCTION</h2>
-      <small style="color: #94a3b8;">📞 Phone: 03343260648</small>
-    </div>
-    <div>
-      <button class="btn-danger" style="font-size: 12px; padding: 8px 12px;" onclick="restartApplication()">⚠️ Full App Restart</button>
-    </div>
-  </header>
-
-  <!-- Navigation Tabs -->
-  <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-    <button class="tab-btn" onclick="switchTab('projects')">Projects</button>
-    <button class="tab-btn" onclick="switchTab('payments')">Banks & Wallets</button>
-    <button class="tab-btn" onclick="switchTab('materials')">Materials & Suppliers</button>
-    <button class="tab-btn" onclick="switchTab('calculator')">Calculator</button>
-    <button class="tab-btn" onclick="switchTab('labor')">Labor Wages</button>
-    <button class="tab-btn" onclick="switchTab('invoices')">Invoices & Bills</button>
-    <button class="tab-btn" onclick="switchTab('reports')">Monthly Reports</button>
-  </div>
-
-  <div class="container">
-
-    <!-- Dashboard -->
-    <div id="dashboard" class="page active">
-      <div class="grid" style="margin-bottom: 20px;">
-        <div class="stat-box">
-          <div class="stat-label">Total Active Projects</div>
-          <div class="stat-val" id="statProjects">0</div>
-        </div>
-        <div class="stat-box" style="border-left-color: var(--success);">
-          <div class="stat-label">Total Cash & Bank Balance</div>
-          <div class="stat-val" id="statBalance" style="color: var(--success);">Rs. 0</div>
-        </div>
-        <div class="stat-box" style="border-left-color: var(--danger);">
-          <div class="stat-label">Pending Labor Wages</div>
-          <div class="stat-val" id="statLaborPending" style="color: var(--danger);">Rs. 0</div>
-        </div>
-        <div class="stat-box" style="border-left-color: var(--warning);">
-          <div class="stat-label">Material Purchases</div>
-          <div class="stat-val" id="statMaterialCost" style="color: var(--warning);">Rs. 0</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>📍 Party & Project Ledger Summary (Day-by-Day)</h3>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Project / Location</th>
-                <th>Party / Description</th>
-                <th>Type</th>
-                <th>Payment Mode</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody id="dashboardLedgerTable"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Projects Section -->
-    <div id="projects" class="page">
-      <div class="grid">
-        <div class="card">
-          <h3>➕ Create New Project</h3>
-          <label>Project Name</label>
-          <input type="text" id="projName" placeholder="e.g. Commercial Plaza Block A">
-          <label>Project Location Name</label>
-          <input type="text" id="projLoc" placeholder="e.g. Autobahn Road, Hyderabad">
-          <label>Total Project Budget (Rs.)</label>
-          <input type="number" id="projBudget" placeholder="e.g. 5000000">
-          <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="addProject()">Add Project</button>
-        </div>
-
-        <div class="card">
-          <h3>🏗️ All Projects Registry</h3>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Project & Date</th>
-                  <th>Location</th>
-                  <th>Budget</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="projectsTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Banks & Wallets -->
-    <div id="payments" class="page">
-      <div class="card">
-        <h3>💳 Financial Accounts & Wallets Management</h3>
-        <div class="grid" style="margin-bottom: 20px;">
-          <div class="stat-box">💵 Cash in Hand: <br><strong id="valCash" style="font-size: 18px;">Rs. 0</strong></div>
-          <div class="stat-box">🏦 Bank Account: <br><strong id="valBank" style="font-size: 18px;">Rs. 0</strong></div>
-          <div class="stat-box">📱 EasyPaisa: <br><strong id="valEasy" style="font-size: 18px;">Rs. 0</strong></div>
-          <div class="stat-box">📲 JazzCash: <br><strong id="valJazz" style="font-size: 18px;">Rs. 0</strong></div>
-        </div>
-        
-        <h4>Deposit / Transfer Funds into App Accounts</h4>
-        <div class="grid">
-          <div>
-            <label>Select Account</label>
-            <select id="accSelect">
-              <option value="Cash">Cash in Hand</option>
-              <option value="Bank">Bank Account</option>
-              <option value="EasyPaisa">EasyPaisa</option>
-              <option value="JazzCash">JazzCash</option>
-            </select>
-          </div>
-          <div>
-            <label>Amount (Rs.)</label>
-            <input type="number" id="accAmount" placeholder="10000">
-          </div>
-        </div>
-        <button class="btn-success" style="margin-top: 10px;" onclick="addFunds()">Deposit Balance</button>
-      </div>
-    </div>
-
-    <!-- Materials & Suppliers -->
-    <div id="materials" class="page">
-      <div class="grid">
-        <div class="card">
-          <h3>🧱 Record Material Purchase</h3>
-          <label>Project</label>
-          <select id="matProjSelect"></select>
-          <label>Supplier / Shop Name</label>
-          <input type="text" id="supName" placeholder="e.g. Bismillah Hardware Store">
-          
-          <label>Construction Material Item</label>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <select id="matItemSelect" style="margin-bottom:0; flex: 1;">
-              <option value="Cement (Bags)">Cement (Bags)</option>
-              <option value="Bricks (Count)">Bricks / Eent (Count)</option>
-              <option value="Steel / Saria (Tons)">Steel / Saria (Tons)</option>
-              <option value="Sand / Reti (Sqft)">Sand / Reti (Sqft)</option>
-              <option value="Crush / Bajri (Sqft)">Crush / Bajri (Sqft)</option>
-              <option value="Tiles (Boxes / Sqft)">Tiles (Boxes / Sqft)</option>
-              <option value="Marble (Sqft)">Marble (Sqft)</option>
-              <option value="Paint (Buckets)">Paint (Buckets)</option>
-            </select>
-            <button class="btn-success" style="padding: 10px 14px; white-space: nowrap;" onclick="addNewMaterialItem()">+ Add Item</button>
-          </div>
-
-          <label style="margin-top: 14px;">Quantity</label>
-          <input type="number" id="matQty" placeholder="e.g. 100" oninput="calcMatTotal()">
-          <label>Purchase Price Per Unit (Rs.)</label>
-          <input type="number" id="matPrice" placeholder="e.g. 1450" oninput="calcMatTotal()">
-          <label>Total Bill Amount (Rs.)</label>
-          <input type="number" id="matTotal" readonly style="background: #f1f5f9;">
-          <label>Payment Source</label>
-          <select id="matPaySource">
-            <option value="Cash">Cash</option>
-            <option value="Bank">Bank</option>
-            <option value="EasyPaisa">EasyPaisa</option>
-            <option value="JazzCash">JazzCash</option>
-          </select>
-          <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="recordMaterialPurchase()">Save Purchase Record</button>
-        </div>
-
-        <div class="card">
-          <h3>📜 Material Purchase History & Ledger</h3>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Supplier</th>
-                  <th>Item</th>
-                  <th>Qty & Price</th>
-                  <th>Total Bill</th>
-                  <th>Mode</th>
-                </tr>
-              </thead>
-              <tbody id="materialHistoryTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Numerical Calculator -->
-    <div id="calculator" class="page">
-      <div class="card" style="max-width: 380px; margin: 0 auto;">
-        <h3>🔢 Numerical Calculator</h3>
-        <div class="calc-container">
-          <div id="calcScreen">0</div>
-          <div class="calc-grid">
-            <button class="calc-btn clr" onclick="clearCalc()">C</button>
-            <button class="calc-btn op" onclick="appendCalc('/')">/</button>
-            <button class="calc-btn op" onclick="appendCalc('*')">×</button>
-            <button class="calc-btn op" onclick="appendCalc('-')">-</button>
-            
-            <button class="calc-btn" onclick="appendCalc('7')">7</button>
-            <button class="calc-btn" onclick="appendCalc('8')">8</button>
-            <button class="calc-btn" onclick="appendCalc('9')">9</button>
-            <button class="calc-btn op" onclick="appendCalc('+')">+</button>
-            
-            <button class="calc-btn" onclick="appendCalc('4')">4</button>
-            <button class="calc-btn" onclick="appendCalc('5')">5</button>
-            <button class="calc-btn" onclick="appendCalc('6')">6</button>
-            <button class="calc-btn" onclick="backspaceCalc()">⌫</button>
-            
-            <button class="calc-btn" onclick="appendCalc('1')">1</button>
-            <button class="calc-btn" onclick="appendCalc('2')">2</button>
-            <button class="calc-btn" onclick="appendCalc('3')">3</button>
-            <button class="calc-btn eq" onclick="calculateResult()">=</button>
-            
-            <button class="calc-btn" onclick="appendCalc('0')" style="grid-column: span 2;">0</button>
-            <button class="calc-btn" onclick="appendCalc('.')">.</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Labor Wages -->
-    <div id="labor" class="page">
-      <div class="grid">
-        <div class="card">
-          <h3 id="laborFormTitle">👷 Add Labor Shift & Wage</h3>
-          <input type="hidden" id="editLaborId" value="">
-          <label>Project</label>
-          <select id="laborProjSelect"></select>
-          <label>Labor Worker Name</label>
-          <input type="text" id="workerName" placeholder="e.g. Ghulam Rasool">
-          <label>Daily Wage Rate (Rs.)</label>
-          <input type="number" id="workerWage" placeholder="e.g. 1800">
-          <label>Payment Status</label>
-          <select id="workerPayStatus">
-            <option value="Paid">Paid (Ada Kar Diya)</option>
-            <option value="Unpaid">Unpaid (Baqaya / Pending)</option>
-          </select>
-          <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button class="btn-primary" style="flex: 1;" onclick="saveLaborRecord()" id="laborSubmitBtn">Add Wage Record</button>
-            <button class="btn-warning" style="display: none;" id="cancelLaborEditBtn" onclick="resetLaborForm()">Cancel</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>📑 Labor Payment Paid / Unpaid Summary</h3>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Worker</th>
-                  <th>Project</th>
-                  <th>Wage</th>
-                  <th>Status & Date</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="laborTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Invoices & Bills Section -->
-    <div id="invoices" class="page">
-      <div class="grid">
-        <div class="card">
-          <h3>📝 Generate Automatic Invoice</h3>
-          <label>Project</label>
-          <select id="invProjSelect"></select>
-          <label>Client / Party Name</label>
-          <input type="text" id="invParty" placeholder="e.g. Ahmed Builders">
-          <label>Bill Description</label>
-          <input type="text" id="invDesc" placeholder="e.g. Gray Structure Phase 1 Billing">
-          <label>Total Bill Amount (Rs.)</label>
-          <input type="number" id="invAmount" placeholder="150000">
-          <label>Invoice Payment Status</label>
-          <select id="invStatus">
-            <option value="PAID">PAID</option>
-            <option value="UNPAID">UNPAID</option>
-          </select>
-          <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="generateInvoice()">Create & Preview Invoice</button>
-        </div>
-
-        <div class="card">
-          <h3>📄 Invoice Preview & Share</h3>
-          <div id="invoicePrintArea" class="invoice-wrapper" style="margin-top: 10px;">
-            <div class="invoice-box" id="invBox">
-              <div class="watermark" id="invWatermark">UNPAID</div>
-              <div style="display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 10px;">
-                <div>
-                  <h4 style="margin: 0; color: var(--accent); font-size: 14px;">M.A. HAQUE BUILDING CONSTRUCTION</h4>
-                  <small style="color: #64748b; font-size: 11px;">📞 Phone: 03343260648</small>
-                </div>
-                <div style="text-align: right;">
-                  <strong style="font-size: 13px;">INVOICE</strong><br>
-                  <small id="invDate" style="color: #64748b; font-size: 10px;">Date: --/--/----</small>
-                </div>
-              </div>
-              <div style="margin: 12px 0; font-size: 12px;">
-                <strong>Bill To:</strong> <span id="invOutParty">----------------</span><br>
-                <strong>Project:</strong> <span id="invOutProj">----------------</span>
-              </div>
-              <table style="margin-top: 8px; font-size: 12px;">
-                <thead>
-                  <tr>
-                    <th>Description</th>
-                    <th style="text-align: right;">Amount (PKR)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td id="invOutDesc">No Invoice Generated Yet</td>
-                    <td style="text-align: right;" id="invOutAmt">Rs. 0</td>
-                  </tr>
-                </tbody>
-              </table>
-              
-              <!-- Signature & Stamp Section -->
-              <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
-                <div style="font-size: 10px; color: #64748b; max-width: 50%;">
-                  Verified by <strong>M.A. HAQUE BUILDING CONSTRUCTION</strong>
-                </div>
-                <div style="text-align: center;">
-                  <svg width="110" height="50" viewBox="0 0 200 100" style="display: block; margin-bottom: 2px;">
-                    <path d="M 25,25 L 35,55 L 45,30 L 55,50 C 65,42 90,38 120,28 C 145,20 170,30 160,40 C 140,55 90,65 15,90 M 80,72 L 125,70 M 98,62 L 98,78" stroke="#4338ca" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <div style="border-top: 1px solid #000; font-size: 10px; font-weight: bold; padding-top: 2px; width: 110px;">Signature</div>
-                </div>
-              </div>
-
-              <!-- Small Invoice Footer Branding -->
-              <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 5px; font-size: 9px; text-align: center; color: #94a3b8;">
-                Powered by USMAN QURESHI (03463997211)
-              </div>
-
-            </div>
-          </div>
-          <div style="margin-top: 15px; display: flex; gap: 10px;">
-            <button class="btn-primary" style="flex: 1;" onclick="downloadInvoicePDF()">📥 Download PDF</button>
-            <button class="btn-success" style="flex: 1;" onclick="shareWhatsAppImage()">📱 Share Image on WA</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Monthly Reports All Projects -->
-    <div id="reports" class="page">
-      <div class="card">
-        <h3>📈 Monthly Reports (All Projects Audit)</h3>
-        <p style="font-size: 13px; color: #64748b;">Complete multi-project financial audit summary and budget allocation tracking.</p>
-        <button class="btn-primary" style="margin: 10px 0;" onclick="generateMonthlyReport()">🔄 Refresh & Generate Report</button>
-        
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Project Name</th>
-                <th>Location</th>
-                <th>Budget</th>
-                <th>Material Expenses</th>
-                <th>Labor Expenses</th>
-                <th>Remaining Balance</th>
-              </tr>
-            </thead>
-            <tbody id="monthlyReportTable"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Global Footer Branding -->
-  <div class="app-footer">
-    Application Powered by <strong>USMAN QURESHI</strong> | Phone: <strong>03463997211</strong>
-  </div>
-
-  <script>
-    let appData = JSON.parse(localStorage.getItem('MA_HAQUE_CONSTRUCTION_V5')) || {
-      projects: [],
-      accounts: { Cash: 0, Bank: 0, EasyPaisa: 0, JazzCash: 0 },
-      materials: [],
-      labor: [],
-      invoices: [],
-      ledger: [],
-      customMaterials: []
-    };
-
-    function saveData() {
-      localStorage.setItem('MA_HAQUE_CONSTRUCTION_V5', JSON.stringify(appData));
-      refreshUI();
-    }
-
-    function handleLogin() {
-      const u = document.getElementById('loginUser').value;
-      const p = document.getElementById('loginPass').value;
-      if (u === 'admin' && p === '1234') {
-        document.getElementById('loginOverlay').style.display = 'none';
-      } else {
-        alert('Invalid Credentials! Use admin / 1234');
-      }
-    }
-
-    function switchTab(tabId) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
-    }
-
-    function restartApplication() {
-      if (confirm("🚨 Kya aap poori application ko RESTART aur TAMAM DATA DELETE karna chahte hain?")) {
-        localStorage.removeItem('MA_HAQUE_CONSTRUCTION_V5');
-        location.reload();
-      }
-    }
-
-    let calcExpression = "";
-    function appendCalc(val) {
-      if(calcExpression === "0" && val !== ".") calcExpression = "";
-      calcExpression += val;
-      document.getElementById('calcScreen').innerText = calcExpression;
-    }
-    function clearCalc() {
-      calcExpression = "";
-      document.getElementById('calcScreen').innerText = "0";
-    }
-    function backspaceCalc() {
-      calcExpression = calcExpression.slice(0, -1);
-      document.getElementById('calcScreen').innerText = calcExpression || "0";
-    }
-    function calculateResult() {
-      try {
-        let res = eval(calcExpression);
-        document.getElementById('calcScreen').innerText = res;
-        calcExpression = res.toString();
-      } catch (e) {
-        document.getElementById('calcScreen').innerText = "Error";
-        calcExpression = "";
-      }
-    }
-
-    function addProject() {
-      const name = document.getElementById('projName').value;
-      const loc = document.getElementById('projLoc').value;
-      const budget = parseFloat(document.getElementById('projBudget').value) || 0;
-      const currentDate = new Date().toLocaleDateString();
-
-      if (!name || !loc) { alert("Project Name aur Location likhna zaroori hai!"); return; }
-
-      appData.projects.push({ id: Date.now(), name, loc, budget, date: currentDate, status: 'Active' });
-      document.getElementById('projName').value = '';
-      document.getElementById('projLoc').value = '';
-      document.getElementById('projBudget').value = '';
-      saveData();
-      alert("Project Successfully Created with Date!");
-    }
-
-    function addFunds() {
-      const acc = document.getElementById('accSelect').value;
-      const amt = parseFloat(document.getElementById('accAmount').value) || 0;
-      if (amt <= 0) return;
-      appData.accounts[acc] += amt;
-      appData.ledger.push({
-        date: new Date().toLocaleDateString(),
-        project: 'General Account Deposit',
-        party: acc + ' Refill',
-        type: 'CREDIT',
-        mode: acc,
-        amount: amt
-      });
-      document.getElementById('accAmount').value = '';
-      saveData();
-    }
-
-    function addNewMaterialItem() {
-      const newItem = prompt("Naye construction material ka naam likhein (e.g. Electric Cables, PVC Pipes):");
-      if (newItem && newItem.trim() !== "") {
-        if (!appData.customMaterials) appData.customMaterials = [];
-        appData.customMaterials.push(newItem.trim());
-        saveData();
-        alert("Material successfully list mein add ho gaya!");
-      }
-    }
-
-    function calcMatTotal() {
-      const qty = parseFloat(document.getElementById('matQty').value) || 0;
-      const price = parseFloat(document.getElementById('matPrice').value) || 0;
-      document.getElementById('matTotal').value = qty * price;
-    }
-
-    function recordMaterialPurchase() {
-      const projId = document.getElementById('matProjSelect').value;
-      const supplier = document.getElementById('supName').value;
-      const item = document.getElementById('matItemSelect').value;
-      const qty = parseFloat(document.getElementById('matQty').value) || 0;
-      const price = parseFloat(document.getElementById('matPrice').value) || 0;
-      const total = qty * price;
-      const mode = document.getElementById('matPaySource').value;
-
-      if (!supplier || total <= 0) { alert("Supplier Name aur valid quantity/price darj karein!"); return; }
-
-      if (appData.accounts[mode] < total) {
-        alert("⚠️ Selected Payment Source (" + mode + ") mein kafi balance nahi hai!");
-        return;
-      }
-
-      appData.accounts[mode] -= total;
-      appData.materials.push({
-        date: new Date().toLocaleDateString(),
-        projId, supplier, item, qty, price, total, mode
-      });
-
-      appData.ledger.push({
-        date: new Date().toLocaleDateString(),
-        project: getProjName(projId),
-        party: supplier,
-        type: 'DEBIT (Material)',
-        mode: mode,
-        amount: total
-      });
-
-      saveData();
-      alert("Material Purchase Saved Successfully!");
-    }
-
-    function saveLaborRecord() {
-      const editId = document.getElementById('editLaborId').value;
-      const projId = document.getElementById('laborProjSelect').value;
-      const name = document.getElementById('workerName').value;
-      const wage = parseFloat(document.getElementById('workerWage').value) || 0;
-      const status = document.getElementById('workerPayStatus').value;
-      const currentDate = new Date().toLocaleDateString();
-
-      if (!name || wage <= 0) { alert("Worker ka naam aur wage likhna zaroori hai!"); return; }
-
-      if (editId) {
-        const l = appData.labor.find(x => x.id == editId);
-        if (l) {
-          l.projId = projId;
-          l.name = name;
-          l.wage = wage;
-          if (l.status !== status) {
-            l.status = status;
-            l.date = currentDate;
-          }
-        }
-        resetLaborForm();
-      } else {
-        appData.labor.push({ 
-          id: Date.now(), 
-          projId, 
-          name, 
-          wage, 
-          status, 
-          date: currentDate 
-        });
-        
-        if (status === 'Paid') {
-          appData.accounts.Cash -= wage;
-          appData.ledger.push({
-            date: currentDate,
-            project: getProjName(projId),
-            party: 'Labor: ' + name,
-            type: 'DEBIT (Labor Wage)',
-            mode: 'Cash',
-            amount: wage
-          });
-        }
-      }
-
-      saveData();
-      document.getElementById('workerName').value = '';
-      document.getElementById('workerWage').value = '';
-    }
-
-    function editLabor(id) {
-      const l = appData.labor.find(x => x.id == id);
-      if (l) {
-        document.getElementById('editLaborId').value = l.id;
-        document.getElementById('laborProjSelect').value = l.projId;
-        document.getElementById('workerName').value = l.name;
-        document.getElementById('workerWage').value = l.wage;
-        document.getElementById('workerPayStatus').value = l.status;
-        
-        document.getElementById('laborFormTitle').innerText = '✏️ Edit Labor Record';
-        document.getElementById('laborSubmitBtn').innerText = 'Update Record';
-        document.getElementById('cancelLaborEditBtn').style.display = 'inline-flex';
-      }
-    }
-
-    function resetLaborForm() {
-      document.getElementById('editLaborId').value = '';
-      document.getElementById('workerName').value = '';
-      document.getElementById('workerWage').value = '';
-      document.getElementById('laborFormTitle').innerText = '👷 Add Labor Shift & Wage';
-      document.getElementById('laborSubmitBtn').innerText = 'Add Wage Record';
-      document.getElementById('cancelLaborEditBtn').style.display = 'none';
-    }
-
-    function toggleLaborPay(laborId) {
-      const l = appData.labor.find(x => x.id === laborId);
-      if (l && l.status === 'Unpaid') {
-        l.status = 'Paid';
-        l.date = new Date().toLocaleDateString();
-        appData.accounts.Cash -= l.wage;
-        appData.ledger.push({
-          date: l.date,
-          project: getProjName(l.projId),
-          party: 'Labor: ' + l.name,
-          type: 'DEBIT (Labor Wage)',
-          mode: 'Cash',
-          amount: l.wage
-        });
-        saveData();
-      }
-    }
-
-    function generateInvoice() {
-      const projId = document.getElementById('invProjSelect').value;
-      const party = document.getElementById('invParty').value;
-      const desc = document.getElementById('invDesc').value;
-      const amt = parseFloat(document.getElementById('invAmount').value) || 0;
-      const status = document.getElementById('invStatus').value;
-
-      if (!party || amt <= 0) {
-        alert("Baraye meherbani Party Name aur valid Amount darj karein!");
-        return;
-      }
-
-      document.getElementById('invOutParty').innerText = party;
-      document.getElementById('invOutProj').innerText = getProjName(projId);
-      document.getElementById('invOutDesc').innerText = desc;
-      document.getElementById('invOutAmt').innerText = 'Rs. ' + amt.toLocaleString();
-      document.getElementById('invDate').innerText = 'Date: ' + new Date().toLocaleDateString();
-
-      const mark = document.getElementById('invWatermark');
-      mark.innerText = status;
-      mark.className = 'watermark ' + status.toLowerCase();
-      alert("Invoice successfully generated & previewed!");
-    }
-
-    function downloadInvoicePDF() {
-      const element = document.getElementById('invBox');
-      const opt = {
-        margin: 5,
-        filename: 'M.A._Haque_Invoice.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
-      };
-      html2pdf().from(element).set(opt).save();
-    }
-
-    function shareWhatsAppImage() {
-      const element = document.getElementById('invBox');
-      html2canvas(element, { scale: 2 }).then(canvas => {
-        canvas.toBlob(blob => {
-          const file = new File([blob], "invoice.png", { type: "image/png" });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({
-              files: [file],
-              title: 'Invoice',
-              text: 'M.A. Haque Building Construction Invoice'
-            }).catch(() => {});
-          } else {
-            const link = document.createElement('a');
-            link.download = 'invoice.png';
-            link.href = canvas.toDataURL();
-            link.click();
-            alert("Invoice image download ho gayi hai! Aap ise WhatsApp par manually image ke taur par send kar sakte hain.");
-          }
-        });
-      });
-    }
-
-    function getProjName(id) {
-      const p = appData.projects.find(x => x.id == id);
-      return p ? p.name : 'N/A';
-    }
-
-    function generateMonthlyReport() {
-      const tbody = document.getElementById('monthlyReportTable');
-      tbody.innerHTML = '';
-      appData.projects.forEach(p => {
-        const matExp = appData.materials.filter(m => m.projId == p.id).reduce((sum, m) => sum + m.total, 0);
-        const labExp = appData.labor.filter(l => l.projId == p.id && l.status === 'Paid').reduce((sum, l) => sum + l.wage, 0);
-        const rem = p.budget - (matExp + labExp);
-
-        tbody.innerHTML += `
-          <tr>
-            <td><strong>${p.name}</strong></td>
-            <td>${p.loc}</td>
-            <td>Rs. ${p.budget.toLocaleString()}</td>
-            <td>Rs. ${matExp.toLocaleString()}</td>
-            <td>Rs. ${labExp.toLocaleString()}</td>
-            <td style="color: ${rem < 0 ? 'red' : 'green'}; font-weight: bold;">Rs. ${rem.toLocaleString()}</td>
-          </tr>
-        `;
-      });
-    }
-
-    function refreshUI() {
-      document.getElementById('valCash').innerText = 'Rs. ' + appData.accounts.Cash.toLocaleString();
-      document.getElementById('valBank').innerText = 'Rs. ' + appData.accounts.Bank.toLocaleString();
-      document.getElementById('valEasy').innerText = 'Rs. ' + appData.accounts.EasyPaisa.toLocaleString();
-      document.getElementById('valJazz').innerText = 'Rs. ' + appData.accounts.JazzCash.toLocaleString();
-      
-      const totalBalance = Object.values(appData.accounts).reduce((a,b)=>a+b, 0);
-      document.getElementById('statBalance').innerText = 'Rs. ' + totalBalance.toLocaleString();
-
-      document.getElementById('statProjects').innerText = appData.projects.length;
-      
-      const pendingLabor = appData.labor.filter(l => l.status === 'Unpaid').reduce((sum, l) => sum + l.wage, 0);
-      document.getElementById('statLaborPending').innerText = 'Rs. ' + pendingLabor.toLocaleString();
-
-      const totalMatCost = appData.materials.reduce((sum, m) => sum + m.total, 0);
-      document.getElementById('statMaterialCost').innerText = 'Rs. ' + totalMatCost.toLocaleString();
-
-      const projDropdowns = ['matProjSelect', 'laborProjSelect', 'invProjSelect'];
-      projDropdowns.forEach(id => {
-        const el = document.getElementById(id);
-        el.innerHTML = appData.projects.length > 0 ? appData.projects.map(p => `<option value="${p.id}">${p.name} (${p.loc})</option>`).join('') : '<option>Pehle Project Add Karein</option>';
-      });
-
-      const matSelect = document.getElementById('matItemSelect');
-      let defaultMatOptions = `
-        <option value="Cement (Bags)">Cement (Bags)</option>
-        <option value="Bricks (Count)">Bricks / Eent (Count)</option>
-        <option value="Steel / Saria (Tons)">Steel / Saria (Tons)</option>
-        <option value="Sand / Reti (Sqft)">Sand / Reti (Sqft)</option>
-        <option value="Crush / Bajri (Sqft)">Crush / Bajri (Sqft)</option>
-        <option value="Tiles (Boxes / Sqft)">Tiles (Boxes / Sqft)</option>
-        <option value="Marble (Sqft)">Marble (Sqft)</option>
-        <option value="Paint (Buckets)">Paint (Buckets)</option>
-      `;
-      if (appData.customMaterials) {
-        appData.customMaterials.forEach(cm => {
-          defaultMatOptions += `<option value="${cm}">${cm}</option>`;
-        });
-      }
-      matSelect.innerHTML = defaultMatOptions;
-
-      const projTbody = document.getElementById('projectsTable');
-      projTbody.innerHTML = appData.projects.map(p => `
-        <tr>
-          <td>
-            <strong>${p.name}</strong><br>
-            <small style="font-size: 11px; color: #64748b;">📅 ${p.date || 'N/A'}</small>
-          </td>
-          <td>${p.loc}</td>
-          <td>Rs. ${p.budget.toLocaleString()}</td>
-          <td><span class="badge badge-paid">${p.status}</span></td>
-          <td><button class="btn-danger" style="padding: 4px 8px; font-size:11px;" onclick="deleteProj(${p.id})">Remove</button></td>
-        </tr>
-      `).join('');
-
-      const matTbody = document.getElementById('materialHistoryTable');
-      matTbody.innerHTML = appData.materials.map(m => `
-        <tr>
-          <td>${m.date}</td>
-          <td><strong>${m.supplier}</strong></td>
-          <td>${m.item}</td>
-          <td>${m.qty} @ Rs. ${m.price}</td>
-          <td><strong>Rs. ${m.total.toLocaleString()}</strong></td>
-          <td><span class="badge badge-paid">${m.mode}</span></td>
-        </tr>
-      `).join('');
-
-      const labTbody = document.getElementById('laborTable');
-      labTbody.innerHTML = appData.labor.map(l => `
-        <tr>
-          <td><strong>${l.name}</strong></td>
-          <td>${getProjName(l.projId)}</td>
-          <td>Rs. ${l.wage.toLocaleString()}</td>
-          <td>
-            <span class="badge ${l.status === 'Paid' ? 'badge-paid' : 'badge-unpaid'}">${l.status}</span><br>
-            <small style="font-size: 10px; color: #64748b;">📅 ${l.date || 'N/A'}</small>
-          </td>
-          <td>
-            <div style="display: flex; gap: 4px;">
-              <button class="btn-primary" style="padding: 3px 6px; font-size:10px;" onclick="editLabor(${l.id})">Edit</button>
-              ${l.status === 'Unpaid' ? `<button class="btn-success" style="padding: 3px 6px; font-size:10px;" onclick="toggleLaborPay(${l.id})">Pay</button>` : ''}
-            </div>
-          </td>
-        </tr>
-      `).join('');
-
-      const ledTbody = document.getElementById('dashboardLedgerTable');
-      ledTbody.innerHTML = appData.ledger.slice(-10).reverse().map(g => `
+      ledTbody.innerHTML = appData.ledger.slice(-15).reverse().map(g => `
         <tr>
           <td>${g.date}</td>
           <td>${g.project}</td>
