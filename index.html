@@ -26,7 +26,7 @@
     }
 
     * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-    body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); line-height: 1.5; }
+    body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 40px; }
     
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
@@ -46,7 +46,7 @@
       background: var(--card); padding: 35px 30px; border-radius: 16px; width: 90%; max-width: 400px;
       text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
     }
-    .login-card h2 { margin-top: 0; color: var(--text-dark); font-size: 1.3rem; }
+    .login-card h2 { margin-top: 0; color: var(--accent); font-size: 1.3rem; }
 
     header {
       background: var(--primary); color: white; padding: 18px 24px; display: flex;
@@ -142,6 +142,11 @@
     .calc-btn.op { background: var(--accent); }
     .calc-btn.eq { background: var(--success); grid-column: span 2; }
     .calc-btn.clr { background: var(--danger); }
+
+    /* Footer Branding */
+    .app-footer {
+      text-align: center; margin-top: 40px; padding: 15px; font-size: 12px; color: #64748b; border-top: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
@@ -154,6 +159,7 @@
       <input type="text" id="loginUser" placeholder="Username (admin)" value="admin">
       <input type="password" id="loginPass" placeholder="Password (1234)" value="1234">
       <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">Secure Login</button>
+      <div style="margin-top: 15px; font-size: 11px; color: #94a3b8;">App Powered by USMAN QURESHI | 03463997211</div>
     </div>
   </div>
 
@@ -495,6 +501,11 @@
                 </div>
               </div>
 
+              <!-- Small Invoice Footer Branding -->
+              <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 5px; font-size: 9px; text-align: center; color: #94a3b8;">
+                Powered by USMAN QURESHI (03463997211)
+              </div>
+
             </div>
           </div>
           <div style="margin-top: 15px; display: flex; gap: 10px;">
@@ -532,8 +543,13 @@
 
   </div>
 
+  <!-- Global Footer Branding -->
+  <div class="app-footer">
+    Application Powered by <strong>USMAN QURESHI</strong> | Phone: <strong>03463997211</strong>
+  </div>
+
   <script>
-    let appData = JSON.parse(localStorage.getItem('MA_HAQUE_CONSTRUCTION_V4')) || {
+    let appData = JSON.parse(localStorage.getItem('MA_HAQUE_CONSTRUCTION_V5')) || {
       projects: [],
       accounts: { Cash: 0, Bank: 0, EasyPaisa: 0, JazzCash: 0 },
       materials: [],
@@ -544,7 +560,7 @@
     };
 
     function saveData() {
-      localStorage.setItem('MA_HAQUE_CONSTRUCTION_V4', JSON.stringify(appData));
+      localStorage.setItem('MA_HAQUE_CONSTRUCTION_V5', JSON.stringify(appData));
       refreshUI();
     }
 
@@ -567,7 +583,7 @@
 
     function restartApplication() {
       if (confirm("🚨 Kya aap poori application ko RESTART aur TAMAM DATA DELETE karna chahte hain?")) {
-        localStorage.removeItem('MA_HAQUE_CONSTRUCTION_V4');
+        localStorage.removeItem('MA_HAQUE_CONSTRUCTION_V5');
         location.reload();
       }
     }
@@ -809,7 +825,6 @@
       html2pdf().from(element).set(opt).save();
     }
 
-    // Share Invoice as Image on WhatsApp
     function shareWhatsAppImage() {
       const element = document.getElementById('invBox');
       html2canvas(element, { scale: 2 }).then(canvas => {
@@ -822,7 +837,6 @@
               text: 'M.A. Haque Building Construction Invoice'
             }).catch(() => {});
           } else {
-            // Fallback for browsers that don't support direct file sharing
             const link = document.createElement('a');
             link.download = 'invoice.png';
             link.href = canvas.toDataURL();
@@ -900,7 +914,6 @@
       }
       matSelect.innerHTML = defaultMatOptions;
 
-      // Projects Table with Creation Date
       const projTbody = document.getElementById('projectsTable');
       projTbody.innerHTML = appData.projects.map(p => `
         <tr>
