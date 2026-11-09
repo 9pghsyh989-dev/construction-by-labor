@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Construction by Labor - Enterprise ERP</title>
+  <title>M.A. HAQUE BUILDING CONSTRUCTION - ERP</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
@@ -45,7 +45,7 @@
       background: var(--card); padding: 35px 30px; border-radius: 16px; width: 90%; max-width: 400px;
       text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
     }
-    .login-card h2 { margin-top: 0; color: var(--text-dark); font-size: 1.5rem; }
+    .login-card h2 { margin-top: 0; color: var(--text-dark); font-size: 1.3rem; }
 
     header {
       background: var(--primary); color: white; padding: 18px 24px; display: flex;
@@ -136,7 +136,7 @@
   <!-- Login Page -->
   <div id="loginOverlay">
     <div class="login-card">
-      <h2 style="color: var(--accent);">🏗️ Construction ERP</h2>
+      <h2 style="color: var(--accent);">M.A. HAQUE BUILDING CONSTRUCTION</h2>
       <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">Enter credentials to access secure database</p>
       <input type="text" id="loginUser" placeholder="Username (admin)" value="admin">
       <input type="password" id="loginPass" placeholder="Password (1234)" value="1234">
@@ -147,15 +147,15 @@
   <!-- Header -->
   <header>
     <div>
-      <h2 style="margin: 0; font-size: 1.25rem;">🏗️ Construction by Labor</h2>
-      <small id="currentProjectDisplay" style="color: #94a3b8;">Enterprise System Active</small>
+      <h2 style="margin: 0; font-size: 1.15rem;">🏗️ M.A. HAQUE BUILDING CONSTRUCTION</h2>
+      <small style="color: #94a3b8;">📞 Phone: 03343260648</small>
     </div>
     <div>
       <button class="btn-danger" style="font-size: 12px; padding: 8px 12px;" onclick="restartApplication()">⚠️ Full App Restart</button>
     </div>
   </header>
 
-  <!-- Navigation Tabs (Numbers Removed) -->
+  <!-- Navigation Tabs -->
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
     <button class="tab-btn" onclick="switchTab('projects')">Projects</button>
@@ -274,7 +274,7 @@
       </div>
     </div>
 
-    <!-- Materials & Suppliers (With Custom Item Add & Tiles) -->
+    <!-- Materials & Suppliers -->
     <div id="materials" class="page">
       <div class="grid">
         <div class="card">
@@ -336,7 +336,7 @@
       </div>
     </div>
 
-    <!-- Labor Wages (With Edit & Payment Dates) -->
+    <!-- Labor Wages -->
     <div id="labor" class="page">
       <div class="grid">
         <div class="card">
@@ -379,7 +379,7 @@
       </div>
     </div>
 
-    <!-- Invoices & Bills Section -->
+    <!-- Invoices & Bills Section (Updated with Name & Signature) -->
     <div id="invoices" class="page">
       <div class="grid">
         <div class="card">
@@ -407,11 +407,11 @@
               <div class="watermark" id="invWatermark">UNPAID</div>
               <div style="display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 12px;">
                 <div>
-                  <h3 style="margin: 0; color: var(--accent);">Construction by Labor</h3>
-                  <small style="color: #64748b;">Enterprise ERP Billing System</small>
+                  <h3 style="margin: 0; color: var(--accent);">M.A. HAQUE BUILDING CONSTRUCTION</h3>
+                  <small style="color: #64748b;">📞 Phone: 03343260648</small>
                 </div>
                 <div style="text-align: right;">
-                  <strong style="font-size: 15px;">INVOICE</strong><br>
+                  <strong style="font-size: 15px;">BILL / INVOICE</strong><br>
                   <small id="invDate" style="color: #64748b;">Date: --/--/----</small>
                 </div>
               </div>
@@ -433,9 +433,21 @@
                   </tr>
                 </tbody>
               </table>
-              <div style="margin-top: 25px; border-top: 1px solid var(--border); padding-top: 10px; font-size: 11px; text-align: center; color: #64748b;">
-                Official Verified Stamp by <strong>Construction by Labor Enterprise System</strong>
+              
+              <!-- Signature & Stamp Section -->
+              <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div style="font-size: 11px; color: #64748b;">
+                  Authorized & Verified by <strong>M.A. HAQUE BUILDING CONSTRUCTION</strong>
+                </div>
+                <div style="text-align: center;">
+                  <!-- Embedded Signature from Image -->
+                  <svg width="120" height="55" viewBox="0 0 200 100" style="display: block; margin-bottom: 4px;">
+                    <path d="M 30,75 C 60,10 120,5 140,40 C 160,75 70,80 40,65 C 25,58 35,35 70,30 L 150,70 M 30,62 L 150,62 M 30,75 L 140,75" stroke="#4338ca" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div style="border-top: 1px solid #000; font-size: 11px; font-weight: bold; padding-top: 2px; width: 130px;">Signature</div>
+                </div>
               </div>
+
             </div>
           </div>
           <div style="margin-top: 15px; display: flex; gap: 10px;">
@@ -474,7 +486,7 @@
   </div>
 
   <script>
-    let appData = JSON.parse(localStorage.getItem('CBL_ENTERPRISE_DATA_V2')) || {
+    let appData = JSON.parse(localStorage.getItem('MA_HAQUE_CONSTRUCTION_V1')) || {
       projects: [],
       accounts: { Cash: 0, Bank: 0, EasyPaisa: 0, JazzCash: 0 },
       materials: [],
@@ -485,7 +497,7 @@
     };
 
     function saveData() {
-      localStorage.setItem('CBL_ENTERPRISE_DATA_V2', JSON.stringify(appData));
+      localStorage.setItem('MA_HAQUE_CONSTRUCTION_V1', JSON.stringify(appData));
       refreshUI();
     }
 
@@ -508,7 +520,7 @@
 
     function restartApplication() {
       if (confirm("🚨 Kya aap poori application ko RESTART aur TAMAM DATA DELETE karna chahte hain?")) {
-        localStorage.removeItem('CBL_ENTERPRISE_DATA_V2');
+        localStorage.removeItem('MA_HAQUE_CONSTRUCTION_V1');
         location.reload();
       }
     }
@@ -545,7 +557,6 @@
       saveData();
     }
 
-    // Custom Material Add Button Feature
     function addNewMaterialItem() {
       const newItem = prompt("Naye construction material ka naam likhein (e.g. Electric Cables, PVC Pipes):");
       if (newItem && newItem.trim() !== "") {
@@ -597,7 +608,6 @@
       alert("Material Purchase Saved Successfully!");
     }
 
-    // Labor Wage Record with Edit & Payment Dates
     function saveLaborRecord() {
       const editId = document.getElementById('editLaborId').value;
       const projId = document.getElementById('laborProjSelect').value;
@@ -609,7 +619,6 @@
       if (!name || wage <= 0) { alert("Worker ka naam aur wage likhna zaroori hai!"); return; }
 
       if (editId) {
-        // Edit existing
         const l = appData.labor.find(x => x.id == editId);
         if (l) {
           l.projId = projId;
@@ -617,12 +626,11 @@
           l.wage = wage;
           if (l.status !== status) {
             l.status = status;
-            l.date = currentDate; // update date if status changed
+            l.date = currentDate;
           }
         }
         resetLaborForm();
       } else {
-        // Add new
         appData.labor.push({ 
           id: Date.now(), 
           projId, 
@@ -714,13 +722,13 @@
 
     function downloadInvoicePDF() {
       const element = document.getElementById('invBox');
-      html2pdf().from(element).save('Construction_Invoice.pdf');
+      html2pdf().from(element).save('M.A._Haque_Invoice.pdf');
     }
 
     function shareWhatsApp() {
       const party = document.getElementById('invOutParty').innerText;
       const amt = document.getElementById('invOutAmt').innerText;
-      const text = `*Construction by Labor - Official Invoice*%0A*Client:* ${party}%0A*Amount:* ${amt}%0A*Status:* Verified Invoice Issued.`;
+      const text = `*M.A. HAQUE BUILDING CONSTRUCTION - Invoice*%0A*Client:* ${party}%0A*Amount:* ${amt}%0A*Phone:* 03343260648`;
       window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     }
 
@@ -773,7 +781,6 @@
         el.innerHTML = appData.projects.length > 0 ? appData.projects.map(p => `<option value="${p.id}">${p.name} (${p.loc})</option>`).join('') : '<option>Pehle Project Add Karein</option>';
       });
 
-      // Render Material Dropdown with Custom Items
       const matSelect = document.getElementById('matItemSelect');
       let defaultMatOptions = `
         <option value="Cement (Bags)">Cement (Bags)</option>
@@ -815,7 +822,6 @@
         </tr>
       `).join('');
 
-      // Labor Table with Edit & Payment Date
       const labTbody = document.getElementById('laborTable');
       labTbody.innerHTML = appData.labor.map(l => `
         <tr>
