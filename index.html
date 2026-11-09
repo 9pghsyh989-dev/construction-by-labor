@@ -187,6 +187,23 @@
 
     <!-- Dashboard Page -->
     <div id="dashboard" class="page active">
+      
+      <!-- Import / Export Controls Card -->
+      <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h3 style="margin: 0; border: none; padding: 0;">💾 Data Backup & Excel Reports</h3>
+            <small style="color: #64748b;">Data backup restore ya Excel sheet download karne ke liye buttons use karein.</small>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="exportDataJSON()" style="font-size: 12px; padding: 8px 12px;">📥 Backup (JSON)</button>
+            <button class="btn-success" onclick="exportToExcel()" style="font-size: 12px; padding: 8px 12px;">📊 Export to Excel (.XLS)</button>
+            <button class="btn-warning" onclick="document.getElementById('importFileInput').click()" style="font-size: 12px; padding: 8px 12px; color: white;">📤 Import Backup</button>
+            <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importDataJSON(event)">
+          </div>
+        </div>
+      </div>
+
       <div class="grid" style="margin-bottom: 25px;">
         <div class="stat-box">
           <div class="stat-label">Total Active Projects</div>
@@ -601,6 +618,80 @@
       refreshUI();
     }
 
+    // Export Data as JSON Backup File
+    function exportDataJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "MA_Haque_Backup_" + new Date().toISOString().slice(0,10) + ".json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    // Export Ledger to Excel (.xls format table)
+    function exportToExcel() {
+      let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head><meta charset="utf-8"><title>MA Haque Construction Ledger</title></head>
+      <body>
+      <h2>M.A. HAQUE BUILDING CONSTRUCTION - Financial Ledger Report</h2>
+      <table border="1">
+        <tr>
+          <th>Date</th>
+          <th>Project / Location</th>
+          <th>Party / Description</th>
+          <th>Type</th>
+          <th>Payment Mode</th>
+          <th>Amount (PKR)</th>
+        </tr>`;
+
+      appData.ledger.forEach(item => {
+        html += `<tr>
+          <td>${item.date}</td>
+          <td>${item.project}</td>
+          <td>${item.party}</td>
+          <td>${item.type}</td>
+          <td>${item.mode}</td>
+          <td>${item.amount}</td>
+        </tr>`;
+      });
+
+      html += `</table></body></html>`;
+
+      const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'MA_Haque_Ledger_Report.xls';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    // Import Data from JSON File
+    function importDataJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (importedData && typeof importedData === 'object') {
+            if (confirm("⚠️ Warning: Import karne par maujuda data replace ho jayega. Kya aap continue karna chahte hain?")) {
+              appData = importedData;
+              saveData();
+              alert("✅ Data Successfully Imported & Restored!");
+            }
+          } else {
+            alert("❌ Ghalat file format!");
+          }
+        } catch (err) {
+          alert("❌ File read karne mein masla aya: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       const today = new Date().toISOString().split('T')[0];
       if(document.getElementById('projDate')) document.getElementById('projDate').value = today;
@@ -961,7 +1052,6 @@
       document.getElementById('valEasy').innerText = 'Rs. ' + appData.accounts.EasyPaisa.toLocaleString();
       document.getElementById('valJazz').innerText = 'Rs. ' + appData.accounts.JazzCash.toLocaleString();
       
-      // Dashboard Quick Overview
       document.getElementById('dashCash').innerText = 'Rs. ' + appData.accounts.Cash.toLocaleString();
       document.getElementById('dashBank').innerText = 'Rs. ' + appData.accounts.Bank.toLocaleString();
       document.getElementById('dashWallets').innerText = 'Rs. ' + (appData.accounts.EasyPaisa + appData.accounts.JazzCash).toLocaleString();
