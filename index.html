@@ -3,135 +3,769 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Construction by Labor - Management App</title>
+  <title>Construction by Labor - Ultimate ERP</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-    h1 { color: var(--primary); font-size: 1.5rem; text-align: center; margin-bottom: 20px; }
-    .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    h2 { font-size: 1.1rem; margin-top: 0; color: #334155; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
-    input, select, button { width: 100%; padding: 12px; margin: 6px 0 12px 0; border-radius: 8px; border: 1px solid #cbd5e1; box-sizing: border-box; font-size: 14px; }
-    button { background: var(--primary); color: white; font-weight: bold; border: none; cursor: pointer; }
-    button:active { opacity: 0.9; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-    th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
-    th { background: #f1f5f9; }
-    .badge { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+    :root {
+      --primary: #1e293b;
+      --accent: #2563eb;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); }
+    
+    /* Login Overlay */
+    #loginOverlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .login-card {
+      background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 380px; text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    
+    /* Header & Nav */
+    header {
+      background: var(--primary); color: white; padding: 15px 20px; display: flex;
+      justify-content: space-between; align-items: center; flex-wrap: wrap;
+    }
+    .nav-tabs {
+      display: flex; gap: 8px; overflow-x: auto; padding: 10px 15px; background: white;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    .tab-btn {
+      padding: 8px 14px; border: none; background: #e2e8f0; border-radius: 6px; cursor: pointer;
+      font-weight: 600; font-size: 13px; white-space: nowrap; color: #475569;
+    }
+    .tab-btn.active { background: var(--accent); color: white; }
+
+    /* Layout */
+    .container { padding: 15px; max-width: 1200px; margin: 0 auto; }
+    .page { display: none; }
+    .page.active { display: block; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+    .card { background: var(--card); padding: 18px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    
+    /* Forms & Inputs */
+    label { font-size: 12px; font-weight: bold; color: #64748b; margin-top: 8px; display: block; }
+    input, select, textarea {
+      width: 100%; padding: 10px; margin: 4px 0 10px 0; border: 1px solid #cbd5e1;
+      border-radius: 6px; font-size: 14px;
+    }
+    button {
+      padding: 10px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-warning { background: var(--warning); color: white; }
+
+    /* Tables */
+    .table-container { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px; }
+    th { background: #f8fafc; font-weight: bold; color: #334155; }
+    
+    /* Stats & Badges */
+    .stat-box { text-align: center; padding: 15px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; }
+    .stat-val { font-size: 20px; font-weight: bold; color: var(--accent); margin-top: 5px; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    .badge-paid { background: #dcfce7; color: #15803d; }
+    .badge-unpaid { background: #fee2e2; color: #b91c1c; }
+
+    /* Invoice Preview & Watermark */
+    .invoice-box {
+      border: 2px solid #000; padding: 25px; background: white; position: relative; overflow: hidden;
+    }
+    .watermark {
+      position: absolute; top: 35%; left: 15%; transform: rotate(-30deg); font-size: 55px;
+      font-weight: 900; opacity: 0.15; border: 5px solid; padding: 10px 20px; text-transform: uppercase;
+    }
+    .watermark.paid { color: var(--success); border-color: var(--success); }
+    .watermark.unpaid { color: var(--danger); border-color: var(--danger); }
   </style>
 </head>
 <body>
 
-  <h1>🏗️ Construction by Labor</h1>
-
-  <!-- 1. Add Labor -->
-  <div class="card">
-    <h2>👷 Naya Worker (Labor) Add Karein</h2>
-    <input type="text" id="laborName" placeholder="Worker ka Naam (e.g. Ali)" required>
-    <select id="laborRole">
-      <option value="Mason (Mistri)">Mason (Mistri)</option>
-      <option value="Helper (Mazdoor)">Helper (Mazdoor)</option>
-      <option value="Electrician">Electrician</option>
-      <option value="Plumber">Plumber</option>
-    </select>
-    <input type="number" id="dailyWage" placeholder="Daily Wage / Dihaadi (e.g. 1500)" required>
-    <button onclick="addLabor()">Worker Add Karein</button>
+  <!-- 7. Login Page -->
+  <div id="loginOverlay">
+    <div class="login-card">
+      <h2 style="margin-top:0; color: var(--accent);">🏗️ Construction by Labor</h2>
+      <p style="font-size: 13px; color: #64748b;">Admin Access Authorization</p>
+      <input type="text" id="loginUser" placeholder="Username (admin)" value="admin">
+      <input type="password" id="loginPass" placeholder="Password (1234)" value="1234">
+      <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">Login System</button>
+    </div>
   </div>
 
-  <!-- 2. Daily Attendance & Wage Calculation -->
-  <div class="card">
-    <h2>📅 Daily Attendance & Wage Summary</h2>
-    <select id="workerSelect"></select>
-    <select id="attendanceStatus">
-      <option value="Present">Present (Poori Dihaadi)</option>
-      <option value="Half-Day">Half-Day (Aadhi Dihaadi)</option>
-      <option value="Absent">Absent (Chutti)</option>
-    </select>
-    <button onclick="markAttendance()">Attendance Mark Karein</button>
+  <!-- App Header -->
+  <header>
+    <div>
+      <h3 style="margin: 0;">🏗️ Construction by Labor</h3>
+      <small id="currentProjectDisplay">Active Project: None Selected</small>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button class="btn-danger" style="font-size: 11px;" onclick="restartApplication()">⚠️ 8. Full Application Restart</button>
+    </div>
+  </header>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Worker</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Wage Earned</th>
-        </tr>
-      </thead>
-      <tbody id="attendanceTable">
-        <!-- Records show here -->
-      </tbody>
-    </table>
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">3. Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('projects')">1, 9, 11, 12. Projects</button>
+    <button class="tab-btn" onclick="switchTab('payments')">2. Banks & Wallets</button>
+    <button class="tab-btn" onclick="switchTab('materials')">13, 14, 18, 19. Materials & Suppliers</button>
+    <button class="tab-btn" onclick="switchTab('calculator')">15. AI Quantity Calculator</button>
+    <button class="tab-btn" onclick="switchTab('labor')">16. Labor Wages</button>
+    <button class="tab-btn" onclick="switchTab('invoices')">4, 5, 6, 17. Invoices & Bills</button>
+    <button class="tab-btn" onclick="switchTab('reports')">10. Monthly Reports</button>
+  </div>
+
+  <div class="container">
+
+    <!-- 3. Dashboard -->
+    <div id="dashboard" class="page active">
+      <div class="grid" style="margin-bottom: 15px;">
+        <div class="stat-box">
+          <div>Total Active Projects</div>
+          <div class="stat-val" id="statProjects">0</div>
+        </div>
+        <div class="stat-box">
+          <div>Total Cash / Bank Balance</div>
+          <div class="stat-val" id="statBalance">Rs. 0</div>
+        </div>
+        <div class="stat-box">
+          <div>Pending Labor Wages</div>
+          <div class="stat-val" id="statLaborPending" style="color: var(--danger);">Rs. 0</div>
+        </div>
+        <div class="stat-box">
+          <div>Material Purchases</div>
+          <div class="stat-val" id="statMaterialCost" style="color: var(--warning);">Rs. 0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📍 Party & Project Ledger Summary (Day-by-Day)</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Project / Location</th>
+                <th>Party / Description</th>
+                <th>Type</th>
+                <th>Payment Mode</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardLedgerTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1, 9, 11, 12. Projects Section -->
+    <div id="projects" class="page">
+      <div class="grid">
+        <div class="card">
+          <h3>➕ Create New Project</h3>
+          <label>Project Name</label>
+          <input type="text" id="projName" placeholder="e.g. Commercial Plaza Block A">
+          <label>11. Project Location Name</label>
+          <input type="text" id="projLoc" placeholder="e.g. Autobahn Road, Hyderabad">
+          <label>9. Total Project Budget (Rs.)</label>
+          <input type="number" id="projBudget" placeholder="e.g. 5000000">
+          <button class="btn-primary" onclick="addProject()">12. Add Project</button>
+        </div>
+
+        <div class="card">
+          <h3>🏗️ All Projects List</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Location</th>
+                  <th>Budget</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="projectsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Banks & Cash & EasyPaisa & JazzCash Option -->
+    <div id="payments" class="page">
+      <div class="card">
+        <h3>💳 Financial Accounts & Wallets Management</h3>
+        <div class="grid" style="margin-bottom: 15px;">
+          <div class="stat-box">💵 Cash in Hand: <strong id="valCash">Rs. 0</strong></div>
+          <div class="stat-box">🏦 Bank Account: <strong id="valBank">Rs. 0</strong></div>
+          <div class="stat-box">📱 EasyPaisa: <strong id="valEasy">Rs. 0</strong></div>
+          <div class="stat-box">📲 JazzCash: <strong id="valJazz">Rs. 0</strong></div>
+        </div>
+        
+        <h4>Deposit / Transfer Funds into App Accounts</h4>
+        <div class="grid">
+          <div>
+            <label>Select Account</label>
+            <select id="accSelect">
+              <option value="Cash">Cash in Hand</option>
+              <option value="Bank">Bank Account</option>
+              <option value="EasyPaisa">EasyPaisa</option>
+              <option value="JazzCash">JazzCash</option>
+            </select>
+          </div>
+          <div>
+            <label>Amount (Rs.)</label>
+            <input type="number" id="accAmount" placeholder="10000">
+          </div>
+        </div>
+        <button class="btn-success" onclick="addFunds()">Deposit Balance</button>
+      </div>
+    </div>
+
+    <!-- 13, 14, 18, 19. Materials & Suppliers -->
+    <div id="materials" class="page">
+      <div class="grid">
+        <div class="card">
+          <h3>🧱 13, 14. Record Material Purchase</h3>
+          <label>Project</label>
+          <select id="matProjSelect"></select>
+          <label>14. Supplier / Shop Name</label>
+          <input type="text" id="supName" placeholder="e.g. Bismillah Hardware Store">
+          <label>18, 19. Construction Material Item</label>
+          <select id="matItemSelect">
+            <option value="Cement (Bags)">Cement (Bags)</option>
+            <option value="Bricks (Count)">Bricks / Eent (Count)</option>
+            <option value="Steel / Saria (Tons)">Steel / Saria (Tons)</option>
+            <option value="Sand / Reti (Sqft)">Sand / Reti (Sqft)</option>
+            <option value="Crush / Bajri (Sqft)">Crush / Bajri (Sqft)</option>
+          </select>
+          <label>Quantity</label>
+          <input type="number" id="matQty" placeholder="e.g. 100" oninput="calcMatTotal()">
+          <label>19. Purchase Price Per Unit (Rs.)</label>
+          <input type="number" id="matPrice" placeholder="e.g. 1450" oninput="calcMatTotal()">
+          <label>Total Bill Amount (Rs.)</label>
+          <input type="number" id="matTotal" readonly>
+          <label>Payment Source</label>
+          <select id="matPaySource">
+            <option value="Cash">Cash</option>
+            <option value="Bank">Bank</option>
+            <option value="EasyPaisa">EasyPaisa</option>
+            <option value="JazzCash">JazzCash</option>
+          </select>
+          <button class="btn-primary" onclick="recordMaterialPurchase()">Save Purchase Record</button>
+        </div>
+
+        <div class="card">
+          <h3>📜 Material Purchase History & Ledger</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Supplier</th>
+                  <th>Item</th>
+                  <th>Qty & Price</th>
+                  <th>Total Bill</th>
+                  <th>Payment Mode</th>
+                </tr>
+              </thead>
+              <tbody id="materialHistoryTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 15. AI Base Material Quantity Calculator -->
+    <div id="calculator" class="page">
+      <div class="card">
+        <h3>🤖 15. AI-Based Material Quantity Estimator</h3>
+        <p style="font-size: 13px; color: #64748b;">Apne Plot / Slab ka Covered Area (Square Feet) likhein. Calculator AI estimation rules ke mutabiq standard construction materials calculate karega.</p>
+        
+        <label>Total Covered Area (Square Feet)</label>
+        <input type="number" id="aiArea" placeholder="e.g. 1200 (120 Sq Yards / 5 Marla)">
+        <button class="btn-warning" onclick="calculateAIMaterials()">⚡ Calculate Required Materials</button>
+
+        <div id="aiResult" style="margin-top: 20px; display: none;">
+          <h4>Estimated Materials Required:</h4>
+          <div class="grid">
+            <div class="stat-box">🧱 Bricks (Eent): <br><strong id="resBricks" class="stat-val">0</strong></div>
+            <div class="stat-box">📦 Cement Bags: <br><strong id="resCement" class="stat-val">0</strong></div>
+            <div class="stat-box">🏗️ Steel (Saria): <br><strong id="resSteel" class="stat-val">0 Tons</strong></div>
+            <div class="stat-box">🏜️ Sand (Reti): <br><strong id="resSand" class="stat-val">0 Sqft</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 16. Labor Payment Paid / Unpaid Summary -->
+    <div id="labor" class="page">
+      <div class="grid">
+        <div class="card">
+          <h3>👷 Add Labor Shift & Wage</h3>
+          <label>Project</label>
+          <select id="laborProjSelect"></select>
+          <label>Labor Worker Name</label>
+          <input type="text" id="workerName" placeholder="e.g. Ghulam Rasool">
+          <label>Daily Wage Rate (Rs.)</label>
+          <input type="number" id="workerWage" placeholder="e.g. 1800">
+          <label>16. Payment Status</label>
+          <select id="workerPayStatus">
+            <option value="Paid">Paid (Ada Kar Diya)</option>
+            <option value="Unpaid">Unpaid (Baqaya / Pending)</option>
+          </select>
+          <button class="btn-primary" onclick="addLaborRecord()">Add Wage Record</button>
+        </div>
+
+        <div class="card">
+          <h3>📑 16. Labor Payment Paid / Unpaid Summary</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Worker</th>
+                  <th>Project</th>
+                  <th>Wage</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="laborTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4, 5, 6, 17. Bill & Invoices Section -->
+    <div id="invoices" class="page">
+      <div class="grid">
+        <div class="card">
+          <h3>📝 5. Generate Automatic Invoice</h3>
+          <label>Project</label>
+          <select id="invProjSelect"></select>
+          <label>Client / Party Name</label>
+          <input type="text" id="invParty" placeholder="e.g. Ahmed Builders">
+          <label>Bill Description</label>
+          <input type="text" id="invDesc" placeholder="e.g. Gray Structure Phase 1 Billing">
+          <label>Total Bill Amount (Rs.)</label>
+          <input type="number" id="invAmount" placeholder="150000">
+          <label>17. Invoice Payment Status</label>
+          <select id="invStatus">
+            <option value="PAID">PAID</option>
+            <option value="UNPAID">UNPAID</option>
+          </select>
+          <button class="btn-success" onclick="generateInvoice()">Create & Print Invoice</button>
+        </div>
+
+        <div class="card">
+          <h3>📄 Invoice Preview & 6. Export / WhatsApp</h3>
+          <div id="invoicePrintArea">
+            <div class="invoice-box" id="invBox">
+              <div class="watermark" id="invWatermark">UNPAID</div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">
+                <div>
+                  <h2 style="margin: 0; color: var(--accent);">Construction by Labor</h2>
+                  <small>Automated Site Management ERP</small>
+                </div>
+                <div style="text-align: right;">
+                  <strong style="font-size: 16px;">INVOICE</strong><br>
+                  <small id="invDate">Date: --/--/----</small>
+                </div>
+              </div>
+              <div style="margin: 15px 0;">
+                <strong>Bill To:</strong> <span id="invOutParty">----------------</span><br>
+                <strong>Project:</strong> <span id="invOutProj">----------------</span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th style="text-align: right;">Amount (PKR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td id="invOutDesc">No Invoice Generated Yet</td>
+                    <td style="text-align: right;" id="invOutAmt">Rs. 0</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 10px; font-size: 11px; text-align: center; color: #64748b;">
+                17. Official Verified Stamp by <strong>Construction by Labor Application System</strong>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="downloadInvoicePDF()">📥 Download PDF</button>
+            <button class="btn-success" onclick="shareWhatsApp()">📱 Send on WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. Monthly Reports All Projects -->
+    <div id="reports" class="page">
+      <div class="card">
+        <h3>📈 10. Monthly Reports (All Projects Overview)</h3>
+        <p style="font-size: 13px; color: #64748b;">Poore mahine ka multi-project cost audit aur detailed financial summary report.</p>
+        <button class="btn-primary" onclick="generateMonthlyReport()">🔄 Generate Full Report</button>
+        
+        <div class="table-container" style="margin-top: 15px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Project Name</th>
+                <th>Location</th>
+                <th>Budget</th>
+                <th>Material Expenses</th>
+                <th>Labor Expenses</th>
+                <th>Remaining Balance</th>
+              </tr>
+            </thead>
+            <tbody id="monthlyReportTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    let workers = JSON.parse(localStorage.getItem('cbl_workers')) || [];
-    let attendanceLogs = JSON.parse(localStorage.getItem('cbl_attendance')) || [];
+    // State & Storage Initialization
+    let appData = JSON.parse(localStorage.getItem('CBL_APP_DATA')) || {
+      projects: [],
+      accounts: { Cash: 0, Bank: 0, EasyPaisa: 0, JazzCash: 0 },
+      materials: [],
+      labor: [],
+      invoices: [],
+      ledger: []
+    };
 
-    function updateWorkerDropdown() {
-      const select = document.getElementById('workerSelect');
-      select.innerHTML = workers.length === 0 ? '<option>Pehle Worker Add Karein</option>' : '';
-      workers.forEach((w, index) => {
-        select.innerHTML += `<option value="${index}">${w.name} (${w.role} - Rs.${w.wage})</option>`;
+    function saveData() {
+      localStorage.setItem('CBL_APP_DATA', JSON.stringify(appData));
+      refreshUI();
+    }
+
+    // 7. Login Logic
+    function handleLogin() {
+      const u = document.getElementById('loginUser').value;
+      const p = document.getElementById('loginPass').value;
+      if (u === 'admin' && p === '1234') {
+        document.getElementById('loginOverlay').style.display = 'none';
+      } else {
+        alert('Invalid Credentials! Use admin / 1234');
+      }
+    }
+
+    // Tab Switcher
+    function switchTab(tabId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // 8. Full Restart Application Button
+    function restartApplication() {
+      if (confirm("🚨 Kya aap poori application ko RESTART aur TAMAM DATA DELETE karna chahte hain?")) {
+        localStorage.removeItem('CBL_APP_DATA');
+        location.reload();
+      }
+    }
+
+    // 1, 9, 11, 12. Add Project
+    function addProject() {
+      const name = document.getElementById('projName').value;
+      const loc = document.getElementById('projLoc').value;
+      const budget = parseFloat(document.getElementById('projBudget').value) || 0;
+
+      if (!name || !loc) { alert("Project Name aur Location likhna zaroori hai!"); return; }
+
+      appData.projects.push({ id: Date.now(), name, loc, budget, status: 'Active' });
+      document.getElementById('projName').value = '';
+      document.getElementById('projLoc').value = '';
+      document.getElementById('projBudget').value = '';
+      saveData();
+      alert("Project Naya Ban Gaya!");
+    }
+
+    // 2. Deposit Funds
+    function addFunds() {
+      const acc = document.getElementById('accSelect').value;
+      const amt = parseFloat(document.getElementById('accAmount').value) || 0;
+      if (amt <= 0) return;
+      appData.accounts[acc] += amt;
+      appData.ledger.push({
+        date: new Date().toLocaleDateString(),
+        project: 'General Account Deposit',
+        party: acc + ' Refill',
+        type: 'CREDIT',
+        mode: acc,
+        amount: amt
       });
+      document.getElementById('accAmount').value = '';
+      saveData();
     }
 
-    function addLabor() {
-      const name = document.getElementById('laborName').value;
-      const role = document.getElementById('laborRole').value;
-      const wage = parseFloat(document.getElementById('dailyWage').value);
-
-      if(!name || isNaN(wage)) { alert("Baraye meherbani naam aur dihaadi darj karein!"); return; }
-
-      workers.push({ name, role, wage });
-      localStorage.setItem('cbl_workers', JSON.stringify(workers));
-      
-      document.getElementById('laborName').value = '';
-      document.getElementById('dailyWage').value = '';
-      
-      alert('Worker kamyabi se add ho gaya!');
-      updateWorkerDropdown();
+    // 13, 14, 18, 19. Material Purchase
+    function calcMatTotal() {
+      const qty = parseFloat(document.getElementById('matQty').value) || 0;
+      const price = parseFloat(document.getElementById('matPrice').value) || 0;
+      document.getElementById('matTotal').value = qty * price;
     }
 
-    function markAttendance() {
-      const workerIdx = document.getElementById('workerSelect').value;
-      const status = document.getElementById('attendanceStatus').value;
-      
-      if(workers.length === 0 || workerIdx === "") return;
+    function recordMaterialPurchase() {
+      const projId = document.getElementById('matProjSelect').value;
+      const supplier = document.getElementById('supName').value;
+      const item = document.getElementById('matItemSelect').value;
+      const qty = parseFloat(document.getElementById('matQty').value) || 0;
+      const price = parseFloat(document.getElementById('matPrice').value) || 0;
+      const total = qty * price;
+      const mode = document.getElementById('matPaySource').value;
 
-      const worker = workers[workerIdx];
-      let earned = 0;
-      if(status === 'Present') earned = worker.wage;
-      else if(status === 'Half-Day') earned = worker.wage / 2;
+      if (!supplier || total <= 0) { alert("Supplier Name aur valid Material quantity/price darj karein!"); return; }
 
-      attendanceLogs.push({
-        name: worker.name,
-        role: worker.role,
-        status: status,
-        earned: earned
+      if (appData.accounts[mode] < total) {
+        alert("⚠️ Selected Payment Source (" + mode + ") mein kafi balance nahi hai!");
+        return;
+      }
+
+      appData.accounts[mode] -= total;
+      appData.materials.push({
+        date: new Date().toLocaleDateString(),
+        projId, supplier, item, qty, price, total, mode
       });
 
-      localStorage.setItem('cbl_attendance', JSON.stringify(attendanceLogs));
-      renderAttendance();
+      appData.ledger.push({
+        date: new Date().toLocaleDateString(),
+        project: getProjName(projId),
+        party: supplier,
+        type: 'DEBIT (Material)',
+        mode: mode,
+        amount: total
+      });
+
+      saveData();
+      alert("Material Purchase Record Saved!");
     }
 
-    function renderAttendance() {
-      const tbody = document.getElementById('attendanceTable');
+    // 15. AI Base Calculator logic
+    function calculateAIMaterials() {
+      const area = parseFloat(document.getElementById('aiArea').value) || 0;
+      if (area <= 0) return;
+
+      // Standard Engineering ratios per Sq Ft
+      document.getElementById('resBricks').innerText = Math.round(area * 42) + " Nos";
+      document.getElementById('resCement').innerText = Math.round(area * 0.4) + " Bags";
+      document.getElementById('resSteel').innerText = (area * 0.0025).toFixed(2) + " Tons";
+      document.getElementById('resSand').innerText = Math.round(area * 1.8) + " Sqft";
+
+      document.getElementById('aiResult').style.display = 'block';
+    }
+
+    // 16. Labor Wage Record
+    function addLaborRecord() {
+      const projId = document.getElementById('laborProjSelect').value;
+      const name = document.getElementById('workerName').value;
+      const wage = parseFloat(document.getElementById('workerWage').value) || 0;
+      const status = document.getElementById('workerPayStatus').value;
+
+      if (!name || wage <= 0) return;
+
+      appData.labor.push({ id: Date.now(), projId, name, wage, status });
+      
+      if (status === 'Paid') {
+        appData.accounts.Cash -= wage;
+        appData.ledger.push({
+          date: new Date().toLocaleDateString(),
+          project: getProjName(projId),
+          party: 'Labor: ' + name,
+          type: 'DEBIT (Labor Wage)',
+          mode: 'Cash',
+          amount: wage
+        });
+      }
+
+      saveData();
+    }
+
+    function toggleLaborPay(laborId) {
+      const l = appData.labor.find(x => x.id === laborId);
+      if (l && l.status === 'Unpaid') {
+        l.status = 'Paid';
+        appData.accounts.Cash -= l.wage;
+        appData.ledger.push({
+          date: new Date().toLocaleDateString(),
+          project: getProjName(l.projId),
+          party: 'Labor: ' + l.name,
+          type: 'DEBIT (Labor Wage)',
+          mode: 'Cash',
+          amount: l.wage
+        });
+        saveData();
+      }
+    }
+
+    // 4, 5, 6, 17. Invoice Generation
+    function generateInvoice() {
+      const projId = document.getElementById('invProjSelect').value;
+      const party = document.getElementById('invParty').value;
+      const desc = document.getElementById('invDesc').value;
+      const amt = parseFloat(document.getElementById('invAmount').value) || 0;
+      const status = document.getElementById('invStatus').value;
+
+      if (!party || amt <= 0) return;
+
+      document.getElementById('invOutParty').innerText = party;
+      document.getElementById('invOutProj').innerText = getProjName(projId);
+      document.getElementById('invOutDesc').innerText = desc;
+      document.getElementById('invOutAmt').innerText = 'Rs. ' + amt.toLocaleString();
+      document.getElementById('invDate').innerText = 'Date: ' + new Date().toLocaleDateString();
+
+      const mark = document.getElementById('invWatermark');
+      mark.innerText = status;
+      mark.className = 'watermark ' + status.toLowerCase();
+    }
+
+    function downloadInvoicePDF() {
+      const element = document.getElementById('invBox');
+      html2pdf().from(element).save('Construction_Invoice.pdf');
+    }
+
+    function shareWhatsApp() {
+      const party = document.getElementById('invOutParty').innerText;
+      const amt = document.getElementById('invOutAmt').innerText;
+      const text = `*Construction by Labor - Bill Invoice*%0A*Client:* ${party}%0A*Amount:* ${amt}%0A*Status:* Verified Invoice Issued.`;
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    // Helper
+    function getProjName(id) {
+      const p = appData.projects.find(x => x.id == id);
+      return p ? p.name : 'N/A';
+    }
+
+    // 10. Monthly Report Generator
+    function generateMonthlyReport() {
+      const tbody = document.getElementById('monthlyReportTable');
       tbody.innerHTML = '';
-      attendanceLogs.forEach(log => {
+      appData.projects.forEach(p => {
+        const matExp = appData.materials.filter(m => m.projId == p.id).reduce((sum, m) => sum + m.total, 0);
+        const labExp = appData.labor.filter(l => l.projId == p.id && l.status === 'Paid').reduce((sum, l) => sum + l.wage, 0);
+        const rem = p.budget - (matExp + labExp);
+
         tbody.innerHTML += `
           <tr>
-            <td><strong>${log.name}</strong></td>
-            <td>${log.role}</td>
-            <td><span class="badge">${log.status}</span></td>
-            <td>Rs. ${log.earned}</td>
+            <td><strong>${p.name}</strong></td>
+            <td>${p.loc}</td>
+            <td>Rs. ${p.budget.toLocaleString()}</td>
+            <td>Rs. ${matExp.toLocaleString()}</td>
+            <td>Rs. ${labExp.toLocaleString()}</td>
+            <td style="color: ${rem < 0 ? 'red' : 'green'}; font-weight: bold;">Rs. ${rem.toLocaleString()}</td>
           </tr>
         `;
       });
     }
 
-    // Init
-    updateWorkerDropdown();
-    renderAttendance();
+    // Core UI Refresh Loop
+    function refreshUI() {
+      // 2. Wallets
+      document.getElementById('valCash').innerText = 'Rs. ' + appData.accounts.Cash.toLocaleString();
+      document.getElementById('valBank').innerText = 'Rs. ' + appData.accounts.Bank.toLocaleString();
+      document.getElementById('valEasy').innerText = 'Rs. ' + appData.accounts.EasyPaisa.toLocaleString();
+      document.getElementById('valJazz').innerText = 'Rs. ' + appData.accounts.JazzCash.toLocaleString();
+      
+      const totalBalance = Object.values(appData.accounts).reduce((a,b)=>a+b, 0);
+      document.getElementById('statBalance').innerText = 'Rs. ' + totalBalance.toLocaleString();
+
+      // Stats
+      document.getElementById('statProjects').innerText = appData.projects.length;
+      
+      const pendingLabor = appData.labor.filter(l => l.status === 'Unpaid').reduce((sum, l) => sum + l.wage, 0);
+      document.getElementById('statLaborPending').innerText = 'Rs. ' + pendingLabor.toLocaleString();
+
+      const totalMatCost = appData.materials.reduce((sum, m) => sum + m.total, 0);
+      document.getElementById('statMaterialCost').innerText = 'Rs. ' + totalMatCost.toLocaleString();
+
+      // Dropdowns
+      const projDropdowns = ['matProjSelect', 'laborProjSelect', 'invProjSelect'];
+      projDropdowns.forEach(id => {
+        const el = document.getElementById(id);
+        el.innerHTML = appData.projects.map(p => `<option value="${p.id}">${p.name} (${p.loc})</option>`).join('');
+      });
+
+      // Tables Rendering
+      const projTbody = document.getElementById('projectsTable');
+      projTbody.innerHTML = appData.projects.map(p => `
+        <tr>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.loc}</td>
+          <td>Rs. ${p.budget.toLocaleString()}</td>
+          <td><span class="badge badge-paid">${p.status}</span></td>
+          <td><button class="btn-danger" style="padding: 4px 8px; font-size:11px;" onclick="deleteProj(${p.id})">Remove</button></td>
+        </tr>
+      `).join('');
+
+      const matTbody = document.getElementById('materialHistoryTable');
+      matTbody.innerHTML = appData.materials.map(m => `
+        <tr>
+          <td>${m.date}</td>
+          <td><strong>${m.supplier}</strong></td>
+          <td>${m.item}</td>
+          <td>${m.qty} @ Rs. ${m.price}</td>
+          <td><strong>Rs. ${m.total.toLocaleString()}</strong></td>
+          <td><span class="badge badge-paid">${m.mode}</span></td>
+        </tr>
+      `).join('');
+
+      const labTbody = document.getElementById('laborTable');
+      labTbody.innerHTML = appData.labor.map(l => `
+        <tr>
+          <td><strong>${l.name}</strong></td>
+          <td>${getProjName(l.projId)}</td>
+          <td>Rs. ${l.wage.toLocaleString()}</td>
+          <td><span class="badge ${l.status === 'Paid' ? 'badge-paid' : 'badge-unpaid'}">${l.status}</span></td>
+          <td>${l.status === 'Unpaid' ? `<button class="btn-success" style="padding: 3px 6px; font-size:11px;" onclick="toggleLaborPay(${l.id})">Mark Paid</button>` : 'Paid'}</td>
+        </tr>
+      `).join('');
+
+      const ledTbody = document.getElementById('dashboardLedgerTable');
+      ledTbody.innerHTML = appData.ledger.slice(-10).reverse().map(g => `
+        <tr>
+          <td>${g.date}</td>
+          <td>${g.project}</td>
+          <td>${g.party}</td>
+          <td><span class="badge ${g.type.includes('CREDIT') ? 'badge-paid' : 'badge-unpaid'}">${g.type}</span></td>
+          <td>${g.mode}</td>
+          <td><strong>Rs. ${g.amount.toLocaleString()}</strong></td>
+        </tr>
+      `).join('');
+    }
+
+    function deleteProj(id) {
+      appData.projects = appData.projects.filter(p => p.id !== id);
+      saveData();
+    }
+
+    // Init Application
+    refreshUI();
   </script>
 </body>
 </html>
