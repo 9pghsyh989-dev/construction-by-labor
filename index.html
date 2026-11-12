@@ -5,13 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>M.A. HAQUE BUILDING CONSTRUCTION - ERP</title>
   
-  <!-- PWA Manifest for Mobile Installation Support -->
-  <link rel="manifest" href='data:application/manifest+json,{"name":"M.A. Haque Construction ERP","short_name":"MA Haque ERP","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#2563eb","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3067/3067451.png","sizes":"512x512","type":"image/png"}]}'>
+  <!-- Embedded PWA Manifest for 100% PWABuilder & Mobile Compatibility -->
+  <link rel="manifest" href='data:application/manifest+json,{
+    "name": "M.A. HAQUE BUILDING CONSTRUCTION",
+    "short_name": "MA Haque ERP",
+    "description": "Enterprise ERP web application for M.A. Haque Building Construction management, labor wages, materials, and invoicing.",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#2563eb",
+    "orientation": "portrait",
+    "icons": [
+      {
+        "src": "https://cdn-icons-png.flaticon.com/512/3067/3067451.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+  }'>
+
   <meta name="theme-color" content="#2563eb">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MA Haque ERP">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3067/3067451.png">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -627,7 +647,6 @@
       refreshUI();
     }
 
-    // Export Data as JSON Backup File
     function exportDataJSON() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -638,7 +657,6 @@
       downloadAnchor.remove();
     }
 
-    // Export Ledger to Excel (.xls format table)
     function exportToExcel() {
       let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
       <head><meta charset="utf-8"><title>MA Haque Construction Ledger</title></head>
@@ -677,7 +695,6 @@
       a.remove();
     }
 
-    // Import Data from JSON File
     function importDataJSON(event) {
       const file = event.target.files[0];
       if (!file) return;
