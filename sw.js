@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ma-haque-erp-v1';
+const CACHE_NAME = 'ma-haque-erp-v2';
 const urlsToCache = [
   './',
   './index.html',
