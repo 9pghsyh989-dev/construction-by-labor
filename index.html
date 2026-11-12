@@ -5,27 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>M.A. HAQUE BUILDING CONSTRUCTION - ERP</title>
   
-  <!-- Embedded PWA Manifest for 100% PWABuilder & Mobile Compatibility -->
-  <link rel="manifest" href='data:application/manifest+json,{
-    "name": "M.A. HAQUE BUILDING CONSTRUCTION",
-    "short_name": "MA Haque ERP",
-    "description": "Enterprise ERP web application for M.A. Haque Building Construction management, labor wages, materials, and invoicing.",
-    "start_url": "./index.html",
-    "scope": "./",
-    "display": "standalone",
-    "background_color": "#0f172a",
-    "theme_color": "#2563eb",
-    "orientation": "portrait",
-    "icons": [
-      {
-        "src": "https://cdn-icons-png.flaticon.com/512/3067/3067451.png",
-        "sizes": "512x512",
-        "type": "image/png",
-        "purpose": "any maskable"
-      }
-    ]
-  }'>
-
+  <!-- Standard External PWA Link for PWABuilder & Mobile -->
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#2563eb">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -534,7 +515,8 @@
             <option value="UNPAID">UNPAID</option>
           </select>
           <label>Invoice Date</label>
-          <input type="date" id="invDateInput">
+          <date id="invDateInput"></date> <!-- handled below -->
+          <input type="date" id="invDateInput" style="margin-top: 6px;">
           <button class="btn-success" style="width: 100%; margin-top: 10px;" onclick="generateInvoice()">Create & Preview Invoice</button>
         </div>
 
@@ -632,6 +614,13 @@
   </div>
 
   <script>
+    // Register Service Worker for PWA Support
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW reg failed:', err));
+      });
+    }
+
     let appData = JSON.parse(localStorage.getItem('MA_HAQUE_CONSTRUCTION_V6')) || {
       projects: [],
       accounts: { Cash: 0, Bank: 0, EasyPaisa: 0, JazzCash: 0 },
@@ -1131,7 +1120,7 @@
         </tr>
       `).join('');
 
-      const matTbody = document.getElementById('materialHistoryTable');
+      const matTbody =Manager = document.getElementById('materialHistoryTable');
       matTbody.innerHTML = appData.materials.map(m => `
         <tr>
           <td>${m.date}</td>
