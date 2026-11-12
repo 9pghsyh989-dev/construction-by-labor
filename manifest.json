@@ -1,17 +1,19 @@
 {
   "name": "M.A. HAQUE BUILDING CONSTRUCTION",
   "short_name": "MA Haque ERP",
-  "description": "Enterprise ERP web application for M.A. Haque Building Construction management",
+  "description": "Enterprise ERP web application for M.A. Haque Building Construction management, labor wages, materials, and invoicing.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#2563eb",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3067/3067451.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
